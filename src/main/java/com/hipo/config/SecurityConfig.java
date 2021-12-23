@@ -1,5 +1,9 @@
 package com.hipo.config;
 
+import com.hipo.Filter.JwtAuthenticationFilter;
+import com.hipo.Filter.JwtAuthorizationFilter;
+import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +21,9 @@ import org.springframework.web.filter.CorsFilter;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final AccountRepository accountRepository;
+    private final JwtProcessor jwtProcessor;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -28,8 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http
-                .addFilter(corsFilter());
-
+                .addFilter(corsFilter())
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtProcessor))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), accountRepository, jwtProcessor));
 
         http
                 .authorizeRequests()
