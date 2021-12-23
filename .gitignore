@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+## Secret Properties ##
+/src/main/resources/application-db.yml
+/src/test/resources/application-db.yml
+/src/main/java/com/hipo/properties/JwtProperties.java

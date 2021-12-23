@@ -16,7 +16,7 @@ public class FileProcessor {
             throw new IllegalArgumentException("MultipartFile이 null입니다.");
         }
         if (Objects.equals(multipartFile.getOriginalFilename(), ".")) {
-            throw new IllegalArgumentException("파일 이름이 잘못된 형식입니다.");
+            throw new IllegalArgumentException("확장자가 없거나 잘못된 형식입니다.");
         }
 
         String storeFilename = createStoreFileName(multipartFile.getOriginalFilename());
@@ -33,7 +33,6 @@ public class FileProcessor {
     private String createStoreFileName(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
         String ext = extracted(originalFilename);
-
         return uuid + ext;
     }
 
