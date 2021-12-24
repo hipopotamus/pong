@@ -20,4 +20,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Page<Account> findByNicknameIgnoreCaseContaining(String keyWord, Pageable pageable);
 
     Optional<Account> findByUsername(String username);
+
+    boolean existByUsername(String username);
+
+    boolean existByNickname(String nickname);
 }

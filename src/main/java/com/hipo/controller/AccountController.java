@@ -5,14 +5,16 @@ import com.hipo.dataobjcet.dto.MessageResult;
 import com.hipo.dataobjcet.form.*;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.service.AccountService;
+import com.hipo.validator.AccountBirthDateFormValidator;
+import com.hipo.validator.AccountFormValidator;
+import com.hipo.validator.AccountNicknameFormValidator;
+import com.hipo.validator.AccountProfileFileFormValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -24,6 +26,18 @@ import java.io.IOException;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AccountFormValidator accountFormValidator;
+    private final AccountNicknameFormValidator accountNicknameFormValidator;
+    private final AccountProfileFileFormValidator accountProfileFileFormValidator;
+    private final AccountBirthDateFormValidator accountBirthDateFormValidator;
+
+    @InitBinder("accountForm")
+    public void initBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(accountFormValidator);
+        webDataBinder.addValidators(accountNicknameFormValidator);
+        webDataBinder.addValidators(accountProfileFileFormValidator);
+        webDataBinder.addValidators(accountBirthDateFormValidator);
+    }
 
     @ApiOperation(value = "회원 가입", notes = "회원 정보를 받아 새로운 회원을 생성합니다.")
     @PostMapping("/account")
