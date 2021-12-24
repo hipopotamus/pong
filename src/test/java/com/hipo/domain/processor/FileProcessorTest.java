@@ -13,14 +13,10 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
 class FileProcessorTest {
 
-    @Autowired
-    FileProcessor fileProcessor;
-
-    @Value("${file.profile}")
-    private String profileImgPath;
+    FileProcessor fileProcessor = new FileProcessor();
+    String profileImgPath =  "/Users/hipo/Desktop/hipo/src/test/resources/static/profile_img/";
 
     @Test
     @DisplayName("storeFile 테스트")
@@ -36,7 +32,7 @@ class FileProcessorTest {
         int dotPos = storeFullPath.lastIndexOf(".");
 
         String fullPath = storeFullPath.substring(0, pos + 1);
-        String uuid = storeFullPath.substring(pos, dotPos);
+        String uuid = storeFullPath.substring(pos + 1, dotPos);
         String ext = storeFullPath.substring(dotPos + 1);
 
         assertThat(fullPath).isEqualTo(profileImgPath);

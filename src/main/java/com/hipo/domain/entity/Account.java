@@ -1,7 +1,9 @@
 package com.hipo.domain.entity;
 
+import com.hipo.domain.entity.base.BaseTime;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.hibernate.annotations.Where;
@@ -12,8 +14,8 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @EqualsAndHashCode(of = "id")
-@Where(clause = "delete = false")
-public class Account {
+@Where(clause = "deleted = false")
+public class Account extends BaseTime {
 
     @Id @GeneratedValue
     @Column(name = "account_id")
@@ -39,7 +41,9 @@ public class Account {
     }
 
     //회원가입 생성자
-    public Account(String username, String password, String nickname, String profileImgPath, Role role, Gender gender, LocalDate birthDate) {
+    @Builder
+    public Account(String username, String password, String nickname, String profileImgPath, Role role, Gender gender,
+                   LocalDate birthDate) {
         this.username = username;
         this.password = password;
         this.nickname = nickname;

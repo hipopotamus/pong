@@ -3,7 +3,7 @@ package com.hipo.Filter;
 import com.hipo.domain.UserAccount;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.processor.JwtProcessor;
-import com.hipo.exception.NonExistResource;
+import com.hipo.exception.NonExistResourceException;
 import com.hipo.properties.JwtProperties;
 import com.hipo.repository.AccountRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,7 +47,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         if (username != null) {
             Account account = accountRepository.findByUsername(username)
-                    .orElseThrow(() -> new NonExistResource("해당 username을 갖는 Account를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
 
             UserAccount userAccount = new UserAccount(account);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userAccount, null,
