@@ -1,7 +1,9 @@
 package com.hipo.exception;
 
+import lombok.Getter;
 import org.springframework.validation.Errors;
 
+@Getter
 public class IllegalFormException extends RuntimeException{
 
     private Errors errors;
