@@ -11,5 +11,5 @@ public class AccountBirthDateForm {
 
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate birtDate;
+    private LocalDate birthDate;
 }

@@ -20,7 +20,7 @@ public class AccountBirthDateFormValidator implements Validator {
 
         AccountBirthDateForm accountBirthDateForm = (AccountBirthDateForm) target;
 
-        LocalDate birtDate = accountBirthDateForm.getBirtDate();
+        LocalDate birtDate = accountBirthDateForm.getBirthDate();
 
         if (birtDate.isAfter(LocalDate.now()) || birtDate.isEqual(LocalDate.now())) {
             errors.reject("IllegalBirthDate", "생년월일이 당일과 같거나 빠를 수 없습니다.");

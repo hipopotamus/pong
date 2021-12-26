@@ -82,7 +82,7 @@ public class AccountController {
     @ApiOperation(value = "내 프로필 이미지 수정", notes = "변경할 프로필 이미지를 받아 회원의 프로필 이미지를 수정합니다.")
     @PostMapping("/account/profileImg")
     public MessageResult updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
-                                          @Valid @RequestBody AccountProfileFileForm accountProfileFileForm,
+                                          @Valid @ModelAttribute AccountProfileFileForm accountProfileFileForm,
                                           @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
@@ -116,7 +116,7 @@ public class AccountController {
             throw new IllegalFormException(errors);
         }
 
-        accountService.updateBirthDate(loginAccountId, accountBirthDateForm.getBirtDate());
+        accountService.updateBirthDate(loginAccountId, accountBirthDateForm.getBirthDate());
 
         return new MessageResult("success update Account birthDate");
     }
