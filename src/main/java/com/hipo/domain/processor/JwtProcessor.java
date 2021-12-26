@@ -26,4 +26,9 @@ public class JwtProcessor {
                 .getClaim(claim)
                 .asString();
     }
+
+    public String extractBearer(String jwtHeader) {
+        int pos = jwtHeader.lastIndexOf(" ");
+        return jwtHeader.substring(pos + 1);
+    }
 }

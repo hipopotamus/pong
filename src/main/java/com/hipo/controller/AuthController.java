@@ -5,10 +5,13 @@ import com.hipo.dataobjcet.form.LoginForm;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.properties.JwtProperties;
 import com.hipo.service.AuthService;
+import com.hipo.validator.LoginFormValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +26,12 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final LoginFormValidator loginFormValidator;
+
+    @InitBinder("loginForm")
+    public void loginFormBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(loginFormValidator);
+    }
 
     @ApiOperation(value = "로그인",
             notes = "아이디와 비밀번호를 받아 로그인을 시도합니다.\n" +

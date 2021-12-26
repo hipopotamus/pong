@@ -24,7 +24,7 @@ public class AccountNicknameFormValidator implements Validator {
 
         //** nickname
         if (accountRepository.existsByNickname(accountNicknameForm.getNickname())) {
-            errors.reject("nicknameDuplication", "이미 사용중인 닉네임입니다.");
+            errors.rejectValue("nickname", "nicknameDuplication", "이미 사용중인 닉네임입니다.");
         }
     }
 }

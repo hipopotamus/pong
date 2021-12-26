@@ -40,9 +40,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        int pos = jwtHeader.lastIndexOf(" ");
-        String jwtToken = jwtHeader.substring(pos + 1);
-
+        String jwtToken = jwtProcessor.extractBearer(jwtHeader);
         String username = jwtProcessor.decodeJwtToken(jwtToken, JwtProperties.SECRET, "username");
 
         if (username != null) {
