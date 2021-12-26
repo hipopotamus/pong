@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -43,8 +44,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()
-                .mvcMatchers("/", "/myLogin").permitAll()
-                .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
+                .mvcMatchers("/", "/myLogin").permitAll() //** 홈페이지, 로그인
+                .mvcMatchers(HttpMethod.POST, "/account").permitAll() //** 회원가입
+                .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "``/swagger-resources/**").permitAll() //** swagger
                 .anyRequest().authenticated();
     }
 

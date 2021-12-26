@@ -32,10 +32,22 @@ public class AccountController {
     private final AccountBirthDateFormValidator accountBirthDateFormValidator;
 
     @InitBinder("accountForm")
-    public void initBinder(WebDataBinder webDataBinder) {
+    public void accountFormBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(accountFormValidator);
+    }
+
+    @InitBinder("accountNicknameForm")
+    public void accountNicknameFormBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(accountNicknameFormValidator);
+    }
+
+    @InitBinder("accountProfileFileForm")
+    public void accountProfileFileFormBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(accountProfileFileFormValidator);
+    }
+
+    @InitBinder("accountBirthDateForm")
+    public void accountBirthDateFormBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(accountBirthDateFormValidator);
     }
 
@@ -48,7 +60,7 @@ public class AccountController {
         }
 
         accountService.createAccount(accountForm.getUsername(), accountForm.getPassword(), accountForm.getNickname(),
-                accountForm.getProfileFile(), accountForm.getGender(), accountForm.getBirtDate());
+                accountForm.getProfileFile(), accountForm.getGender(), accountForm.getBirthDate());
 
         return new MessageResult("success create Account");
     }

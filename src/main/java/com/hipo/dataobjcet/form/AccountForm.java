@@ -3,7 +3,6 @@ package com.hipo.dataobjcet.form;
 import com.hipo.domain.entity.enums.Gender;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,5 +36,5 @@ public class AccountForm {
 
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate birtDate;
+    private LocalDate birthDate;
 }

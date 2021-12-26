@@ -13,5 +13,5 @@ public class FormErrorResult {
 
     private String exception;
 
-    private List<ErrorDto> fieldErrorList;
+    private List<ErrorDto> errorList;
 }

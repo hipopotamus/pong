@@ -37,23 +37,23 @@ public class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({IllegalFormException.class})
     public FormErrorResult IllegalFormExceptionHandler(IllegalFormException exception) {
-        List<ErrorDto> FiledErrorList = getFieldErrorList(exception.getErrors().getAllErrors());
+        List<ErrorDto> errorList = getFieldErrorList(exception.getErrors().getAllErrors());
 
-        return new FormErrorResult("400", exception.getClass().getSimpleName(), FiledErrorList);
+        return new FormErrorResult("400", exception.getClass().getSimpleName(), errorList);
     }
 
     private List<ErrorDto> getFieldErrorList(List<ObjectError> errors) {
         List<ErrorDto> errorList = new ArrayList<>();
         for (ObjectError error : errors) {
             if (error instanceof FieldError) {
-                FieldError fieldError = (FieldError) errors;
+                FieldError fieldError = (FieldError) error;
                 errorList.add(new ErrorDto(fieldError.getField(), fieldError.getCode(), getErrorMessage(error)));
             } else {
                 errorList.add(new ErrorDto(error.getCode(), getErrorMessage(error)));
             }
         }
 
-        return null;
+        return errorList;
     }
 
     private String getErrorMessage(ObjectError error) {

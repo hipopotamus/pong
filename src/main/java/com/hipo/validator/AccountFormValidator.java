@@ -25,12 +25,12 @@ public class AccountFormValidator implements Validator {
         AccountForm accountForm = (AccountForm) target;
 
         //** username
-        if (accountRepository.existByUsername(accountForm.getUsername())) {
+        if (accountRepository.existsByUsername(accountForm.getUsername())) {
             errors.reject("usernameDuplication", "이미 사용중인 아이디입니다.");
         }
 
         //** nickname
-        if (accountRepository.existByNickname(accountForm.getNickname())) {
+        if (accountRepository.existsByNickname(accountForm.getNickname())) {
             errors.reject("nicknameDuplication", "이미 사용중인 닉네임입니다.");
         }
 
@@ -50,8 +50,8 @@ public class AccountFormValidator implements Validator {
         }
 
         //** birthDate
-        LocalDate birtDate = accountForm.getBirtDate();
-        if (birtDate.isAfter(LocalDate.now()) || birtDate.isEqual(LocalDate.now())) {
+        LocalDate birthDate = accountForm.getBirthDate();
+        if (birthDate.isAfter(LocalDate.now()) || birthDate.isEqual(LocalDate.now())) {
             errors.reject("IllegalBirthDate", "생년월일이 당일과 같거나 빠를 수 없습니다.");
         }
     }
