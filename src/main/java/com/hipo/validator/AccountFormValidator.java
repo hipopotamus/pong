@@ -37,15 +37,11 @@ public class AccountFormValidator implements Validator {
         //** profileFile
         String originalFilename = accountForm.getProfileFile().getOriginalFilename();
 
-        if (originalFilename.isBlank() || originalFilename.isEmpty()) {
+        if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
             errors.rejectValue("profileFile", "IllegalFileName", "파일 이름이 공백이거나 비어있습니다.");
-        }
-
-        if (!originalFilename.contains(".")) {
+        } else if (!originalFilename.contains(".")) {
             errors.rejectValue("profileFile", "IllegalFileName", "확장자가 없습니다.");
-        }
-
-        if (originalFilename.equals(".")) {
+        } else if (originalFilename.equals(".")) {
             errors.rejectValue("profileFile", "IllegalFileName", "잘못된 형식의 파일이름입니다.");
         }
 
