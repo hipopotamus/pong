@@ -1,7 +1,7 @@
 package com.hipo.controller;
 
 import com.hipo.argumentresolver.LoginAccountId;
-import com.hipo.dataobjcet.dto.MessageResult;
+import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.*;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.service.AccountService;
@@ -53,7 +53,7 @@ public class AccountController {
 
     @ApiOperation(value = "회원 가입", notes = "회원 정보를 받아 새로운 회원을 생성합니다.")
     @PostMapping("/account")
-    public MessageResult createAccount(@Valid @ModelAttribute AccountForm accountForm,
+    public ResultMessage createAccount(@Valid @ModelAttribute AccountForm accountForm,
                                        @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
@@ -62,26 +62,26 @@ public class AccountController {
         accountService.createAccount(accountForm.getUsername(), accountForm.getPassword(), accountForm.getNickname(),
                 accountForm.getProfileFile(), accountForm.getGender(), accountForm.getBirthDate());
 
-        return new MessageResult("success create Account");
+        return new ResultMessage("success create Account");
     }
 
     @ApiOperation(value = "내 닉네임 수정", notes = "변경할 닉네임을 받아 회원의 닉네임을 수정합니다.")
     @PostMapping("/account/nickname")
-    public MessageResult updateNickname(@LoginAccountId Long loginAccountId,
-                                               @Valid @RequestBody AccountNicknameForm accountNicknameForm,
-                                               @ApiIgnore Errors errors) {
+    public ResultMessage updateNickname(@LoginAccountId Long loginAccountId,
+                                        @Valid @RequestBody AccountNicknameForm accountNicknameForm,
+                                        @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
 
         accountService.updateNickname(loginAccountId, accountNicknameForm.getNickname());
 
-        return new MessageResult("success update Account nickname");
+        return new ResultMessage("success update Account nickname");
     }
 
     @ApiOperation(value = "내 프로필 이미지 수정", notes = "변경할 프로필 이미지를 받아 회원의 프로필 이미지를 수정합니다.")
     @PostMapping("/account/profileImg")
-    public MessageResult updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
                                           @Valid @ModelAttribute AccountProfileFileForm accountProfileFileForm,
                                           @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {
@@ -90,12 +90,12 @@ public class AccountController {
 
         accountService.updateProfileImg(loginAccountId, accountProfileFileForm.getProfileFile());
 
-        return new MessageResult("success update Account profileImg");
+        return new ResultMessage("success update Account profileImg");
     }
 
     @ApiOperation(value = "내 성별 수정", notes = "변경할 성별을 받아 회원의 성별을 수정합니다.")
     @PostMapping("/account/gender")
-    public MessageResult updateGender(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateGender(@ApiIgnore @LoginAccountId Long loginAccountId,
                                       @Valid @RequestBody AccountGenderForm accountGenderForm,
                                       @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {
@@ -104,12 +104,12 @@ public class AccountController {
 
         accountService.updateGender(loginAccountId, accountGenderForm.getGender());
 
-        return new MessageResult("success update Account gender");
+        return new ResultMessage("success update Account gender");
     }
 
     @ApiOperation(value = "내 생년월일 수정", notes = "변경할 생년월일을 받아 회원의 생년원일을 수정합니다.")
     @PostMapping("/account/birthDate")
-    public MessageResult updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
                                           @Valid @RequestBody AccountBirthDateForm accountBirthDateForm,
                                           @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {
@@ -118,7 +118,7 @@ public class AccountController {
 
         accountService.updateBirthDate(loginAccountId, accountBirthDateForm.getBirthDate());
 
-        return new MessageResult("success update Account birthDate");
+        return new ResultMessage("success update Account birthDate");
     }
 
 }

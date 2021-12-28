@@ -76,7 +76,7 @@ class AuthControllerTest {
 
         //given
         String loginUsername = "test1@naver.com";
-        String password = "12345";
+        String password = "12345"; //** 잘못된 패스워드
 
         LoginForm loginForm = new LoginForm(loginUsername, password);
 
@@ -107,7 +107,7 @@ class AuthControllerTest {
     public void login_wrongUsername_Test() throws Exception {
 
         //given
-        String loginUsername = "wrongTest1@naver.com";
+        String loginUsername = "wrongTest1@naver.com"; //** 잘못된 아이디
         String password = "1234";
 
         LoginForm loginForm = new LoginForm(loginUsername, password);

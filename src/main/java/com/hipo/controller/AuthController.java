@@ -1,6 +1,6 @@
 package com.hipo.controller;
 
-import com.hipo.dataobjcet.dto.MessageResult;
+import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.LoginForm;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.properties.JwtProperties;
@@ -37,7 +37,7 @@ public class AuthController {
             notes = "아이디와 비밀번호를 받아 로그인을 시도합니다.\n" +
                     "로그인 성공시 Authorization 헤더에 인증 토큰이 발급됩니다.")
     @PostMapping("/myLogin")
-    public MessageResult myLogin(@Valid @RequestBody LoginForm loginForm, @ApiIgnore Errors errors,
+    public ResultMessage myLogin(@Valid @RequestBody LoginForm loginForm, @ApiIgnore Errors errors,
                                  HttpServletResponse response) {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
@@ -46,6 +46,6 @@ public class AuthController {
         String jwtToken = authService.login(loginForm.getUsername(), loginForm.getPassword());
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + " " + jwtToken);
 
-        return new MessageResult("success login");
+        return new ResultMessage("success login");
     }
 }
