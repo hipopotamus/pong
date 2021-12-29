@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .mvcMatchers("/", "/myLogin").permitAll() //** 홈페이지, 로그인
                 .mvcMatchers(HttpMethod.POST, "/account").permitAll() //** 회원가입
-                .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "``/swagger-resources/**").permitAll() //** swagger
+                .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
                 .anyRequest().authenticated();
     }
 

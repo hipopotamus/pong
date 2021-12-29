@@ -63,7 +63,7 @@ public class RelationService {
                 .collect(Collectors.toList());
     }
 
-    public List<AccountDto> findRequesting(Long accountId) {
+    public List<AccountDto> findRequests(Long accountId) {
         List<Relation> requests = relationRepository.findRequesting(accountId);
 
         return requests.stream()

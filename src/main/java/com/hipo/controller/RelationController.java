@@ -44,13 +44,13 @@ public class RelationController {
 
     @ApiOperation(value = "친구 요청 목록 조회", notes = "회원 정보를 받아 해당 회원의 친구 요청 목록을 조회 합니다.")
     @GetMapping("/relation/request/{accountId}")
-    public List<AccountDto> findRequest(@PathVariable Long accountId) {
-        return relationService.findRequesting(accountId);
+    public List<AccountDto> findRequests(@PathVariable Long accountId) {
+        return relationService.findRequests(accountId);
     }
 
     @ApiOperation(value = "받은 친구 요청 목록 조회", notes = "회원 정보를 받아 해당 회원이 받은 친구 요청 목록을 조회 합니다.")
     @GetMapping("/relation/waitRequest/{accountId}")
     public List<AccountDto> findWaitingRequests(@PathVariable Long accountId) {
-        return relationService.findRequesting(accountId);
+        return relationService.findWaitingRequests(accountId);
     }
 }
