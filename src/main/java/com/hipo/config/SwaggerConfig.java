@@ -26,7 +26,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("pictureboard.api.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.hipo.controller"))
                 .paths(PathSelectors.any())
                 .build()
                 .securityContexts(Arrays.asList(securityContext()))
@@ -35,9 +35,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("pong_game REST API")
+                .title("pong game REST API")
                 .version("1.0.0")
-                .description("pong_game api입니다.")
+                .description("pong game api입니다.")
                 .build();
     }
 
