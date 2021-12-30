@@ -19,16 +19,12 @@ public class AccountProfileFileFormValidator implements Validator {
         AccountProfileFileForm accountProfileFileForm = (AccountProfileFileForm) target;
         String originalFilename = accountProfileFileForm.getProfileFile().getOriginalFilename();
 
-        if (originalFilename.isBlank() || originalFilename.isEmpty()) {
-            errors.rejectValue("profileFile", "IllegalFileName", "파일 이름이 공백이거나 비어있습니다.");
-        }
-
-        if (!originalFilename.contains(".")) {
-            errors.rejectValue("profileFile", "IllegalFileName", "확장자가 없습니다.");
-        }
-
-        if (originalFilename.equals(".")) {
-            errors.rejectValue("profileFile", "IllegalFileName", "잘못된 형식의 파일이름입니다.");
+        if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
+            errors.rejectValue("profileFile", "BlankFileName", "파일 이름이 공백이거나 비어있습니다.");
+        } else if (!originalFilename.contains(".")) {
+            errors.rejectValue("profileFile", "NonExtractFileName", "확장자가 없습니다.");
+        } else if (originalFilename.equals(".")) {
+            errors.rejectValue("profileFile", "OnlyDotFileName", "잘못된 형식의 파일이름입니다.");
         }
 
     }

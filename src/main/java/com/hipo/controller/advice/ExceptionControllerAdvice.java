@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -32,6 +33,12 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler({NonExistResourceException.class})
     public BasicErrorResult NonExistResourceExceptionHandler(NonExistResourceException exception) {
         return new BasicErrorResult("400", exception.getClass().getSimpleName(), exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public BasicErrorResult HttpMessageNotReadableExceptionHandler(HttpMessageNotReadableException exception) {
+        return new BasicErrorResult("400", exception.getClass().getSimpleName(), "잘못된 형식의 요청입니다.");
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

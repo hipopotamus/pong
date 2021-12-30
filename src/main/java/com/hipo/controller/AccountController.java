@@ -109,7 +109,7 @@ public class AccountController {
 
     @ApiOperation(value = "내 생년월일 수정", notes = "변경할 생년월일을 받아 회원의 생년원일을 수정합니다.")
     @PostMapping("/account/birthDate")
-    public ResultMessage updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateBirthDate(@ApiIgnore @LoginAccountId Long loginAccountId,
                                           @Valid @RequestBody AccountBirthDateForm accountBirthDateForm,
                                           @ApiIgnore Errors errors) throws IOException {
         if (errors.hasErrors()) {

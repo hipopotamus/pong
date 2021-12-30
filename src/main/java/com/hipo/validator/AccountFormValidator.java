@@ -38,17 +38,17 @@ public class AccountFormValidator implements Validator {
         String originalFilename = accountForm.getProfileFile().getOriginalFilename();
 
         if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
-            errors.rejectValue("profileFile", "IllegalFileName", "파일 이름이 공백이거나 비어있습니다.");
+            errors.rejectValue("profileFile", "BlankFileName", "파일 이름이 공백이거나 비어있습니다.");
         } else if (!originalFilename.contains(".")) {
-            errors.rejectValue("profileFile", "IllegalFileName", "확장자가 없습니다.");
+            errors.rejectValue("profileFile", "NonExtractFileName", "확장자가 없습니다.");
         } else if (originalFilename.equals(".")) {
-            errors.rejectValue("profileFile", "IllegalFileName", "잘못된 형식의 파일이름입니다.");
+            errors.rejectValue("profileFile", "OnlyDotFileName", "잘못된 형식의 파일이름입니다.");
         }
 
         //** birthDate
         LocalDate birthDate = accountForm.getBirthDate();
-        if (birthDate.isAfter(LocalDate.now()) || birthDate.isEqual(LocalDate.now())) {
-            errors.rejectValue("birthDate", "IllegalBirthDate", "생년월일이 당일과 같거나 빠를 수 없습니다.");
+        if (birthDate != null && (birthDate.isAfter(LocalDate.now()) || birthDate.isEqual(LocalDate.now()))) {
+            errors.rejectValue("birthDate", "FutureBirthDate", "생년월일이 당일과 같거나 빠를 수 없습니다.");
         }
     }
 }

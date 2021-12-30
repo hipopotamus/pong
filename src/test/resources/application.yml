@@ -31,4 +31,4 @@ logging.level:
   org.hibernate.type: trace
 
 file:
-  profile: /Users/hipo/Desktop/hipo/src/main/resources/static/profile_img/
+  profile: /Users/hipo/Desktop/hipo/src/test/resources/static/profile_img/
