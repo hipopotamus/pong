@@ -73,8 +73,7 @@ class AccountControllerTest {
     static {
         try {
             originFile = new MockMultipartFile("profileFile", originFileName, "image/jpeg",
-                    new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                            "-470f-9605-81407fc077c7.jpeg"));
+                    new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,8 +108,7 @@ class AccountControllerTest {
 
         String fileName = "hipo.jpeg";
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
         mockMvc.perform(multipart("/account").file(file)
@@ -148,8 +146,7 @@ class AccountControllerTest {
 
         String fileName = "  "; //** 비어있는 fileName;
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
         MvcResult IllegalFormResult = mockMvc.perform(multipart("/account").file(file)
@@ -289,8 +286,7 @@ class AccountControllerTest {
         //given
         String fileName = "updateProfileImg.jpeg";
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
         String beforeUpdateProfileImgPath = accountRepository.findByUsername(originUsername + 1 + originEmail)
@@ -318,18 +314,15 @@ class AccountControllerTest {
         //given
         String blankFileName = null; //** null인 filename
         MockMultipartFile blankFile = new MockMultipartFile("profileFile", blankFileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         String nonExtractFileName = "updateProfileImgjpeg"; //** 확장자가 없는 filename
         MockMultipartFile nonExtractFile = new MockMultipartFile("profileFile", nonExtractFileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         String onlyDotFileName = "."; //** 잘못된 형식의 filename
         MockMultipartFile onlyDotFile = new MockMultipartFile("profileFile", onlyDotFileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/main/resources/static/sample/ea451747-9643" +
-                        "-470f-9605-81407fc077c7.jpeg"));
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
         MvcResult blankResult = mockMvc.perform(multipart("/account/profileImg").file(blankFile))

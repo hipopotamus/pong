@@ -6,26 +6,35 @@ import com.hipo.dataobjcet.dto.ErrorDto;
 import com.hipo.dataobjcet.dto.FormErrorResult;
 import com.hipo.dataobjcet.form.LoginForm;
 import com.hipo.domain.UserAccount;
+import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.properties.JwtProperties;
 import com.hipo.repository.AccountRepository;
+import com.hipo.service.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class AuthControllerTest {
 
     @Autowired
@@ -38,15 +47,49 @@ class AuthControllerTest {
     AccountRepository accountRepository;
 
     @Autowired
+    AccountService accountService;
+
+    @Autowired
     JwtProcessor jwtProcessor;
+
+    static String originUsername = "test";
+    static String originEmail = "@test.com";
+    static String originPassword = "1234";
+    static String originNickname = "testNickname";
+    static Gender originGender = Gender.MAN;
+    static LocalDate originBirthDate = LocalDate.now();
+    static String originFileName = "test.jpeg";
+    static MockMultipartFile originFile;
+
+    static {
+        try {
+            originFile = new MockMultipartFile("profileFile", originFileName, "image/jpeg",
+                    new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    @BeforeEach
+//    void init() throws Exception {
+//        for (int i = 1; i <= 10; i++) {
+//            accountService.createAccount(originUsername + i + originEmail, originPassword, originNickname + i,
+//                    originFile, originGender, originBirthDate);
+//        }
+//    }
 
     @Test
     @DisplayName("로그인 성공")
     public void loginTest() throws Exception {
 
+        for (int i = 1; i <= 10; i++) {
+            accountService.createAccount(originUsername + i + originEmail, originPassword, originNickname + i,
+                    originFile, originGender, originBirthDate);
+        }
+
         //given
-        String loginUsername = "test1@naver.com";
-        String password = "1234";
+        String loginUsername = originUsername + 1 + originEmail;
+        String password = originPassword;
 
         LoginForm loginForm = new LoginForm(loginUsername, password);
 
@@ -75,7 +118,7 @@ class AuthControllerTest {
     public void login_wrongPassword_Test() throws Exception {
 
         //given
-        String loginUsername = "test1@naver.com";
+        String loginUsername = originUsername + 1 + originEmail;
         String password = "12345"; //** 잘못된 패스워드
 
         LoginForm loginForm = new LoginForm(loginUsername, password);
@@ -107,8 +150,8 @@ class AuthControllerTest {
     public void login_wrongUsername_Test() throws Exception {
 
         //given
-        String loginUsername = "wrongTest1@naver.com"; //** 잘못된 아이디
-        String password = "1234";
+        String loginUsername = "wrongTest@test.com"; //** 잘못된 아이디
+        String password = originPassword;
 
         LoginForm loginForm = new LoginForm(loginUsername, password);
 
