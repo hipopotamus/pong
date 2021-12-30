@@ -5,93 +5,63 @@ import com.hipo.dataobjcet.dto.BasicErrorResult;
 import com.hipo.dataobjcet.dto.ErrorDto;
 import com.hipo.dataobjcet.dto.FormErrorResult;
 import com.hipo.dataobjcet.form.LoginForm;
-import com.hipo.domain.UserAccount;
+import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
+import com.hipo.domain.entity.enums.Role;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.properties.JwtProperties;
 import com.hipo.repository.AccountRepository;
 import com.hipo.service.AccountService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class AuthControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
+    @Autowired AccountRepository accountRepository;
+    @Autowired AccountService accountService;
+    @Autowired JwtProcessor jwtProcessor;
+    @Autowired BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    ObjectMapper objectMapper;
 
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    AccountService accountService;
-
-    @Autowired
-    JwtProcessor jwtProcessor;
-
-    static String originUsername = "test";
-    static String originEmail = "@test.com";
-    static String originPassword = "1234";
-    static String originNickname = "testNickname";
-    static Gender originGender = Gender.MAN;
-    static LocalDate originBirthDate = LocalDate.now();
-    static String originFileName = "test.jpeg";
-    static MockMultipartFile originFile;
-
-    static {
-        try {
-            originFile = new MockMultipartFile("profileFile", originFileName, "image/jpeg",
-                    new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @BeforeEach
+    public void init() {
+        Account account = new Account("test@test.com", bCryptPasswordEncoder.encode("1234"),
+                "testNickname", "/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg",
+                Role.User, Gender.MAN, LocalDate.now());
+        accountRepository.save(account);
     }
 
-//    @BeforeEach
-//    void init() throws Exception {
-//        for (int i = 1; i <= 10; i++) {
-//            accountService.createAccount(originUsername + i + originEmail, originPassword, originNickname + i,
-//                    originFile, originGender, originBirthDate);
-//        }
-//    }
 
     @Test
     @DisplayName("로그인 성공")
     public void loginTest() throws Exception {
 
-        for (int i = 1; i <= 10; i++) {
-            accountService.createAccount(originUsername + i + originEmail, originPassword, originNickname + i,
-                    originFile, originGender, originBirthDate);
-        }
-
         //given
-        String loginUsername = originUsername + 1 + originEmail;
-        String password = originPassword;
-
-        LoginForm loginForm = new LoginForm(loginUsername, password);
+        String username = "test@test.com";
+        LoginForm loginForm = new LoginForm(username, "1234");
 
         //when
         MvcResult mvcResult = mockMvc.perform(post("/myLogin")
@@ -102,72 +72,62 @@ class AuthControllerTest {
         //** 발급된 jwtToken 확인
         String jwtHeader = mvcResult.getResponse().getHeader("Authorization");
         String jwtToken = jwtProcessor.extractBearer(jwtHeader);
-        String username = jwtProcessor.decodeJwtToken(jwtToken, JwtProperties.SECRET, "username");
-
-        //** securityContextHolder 확인
-        UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String securityContextUsername = userAccount.getAccount().getUsername();
+        String decodeUsername = jwtProcessor.decodeJwtToken(jwtToken, JwtProperties.SECRET, "username");
 
         //then
-        assertThat(username).isEqualTo(loginUsername);
-        assertThat(username).isEqualTo(securityContextUsername);
+        assertThat(decodeUsername).isEqualTo(username);
     }
 
     @Test
-    @DisplayName("로그인 실패 - 잘못된 패스워드")
+    @DisplayName("로그인 실패_잘못된 패스워드")
     public void login_wrongPassword_Test() throws Exception {
 
         //given
-        String loginUsername = originUsername + 1 + originEmail;
-        String password = "12345"; //** 잘못된 패스워드
-
-        LoginForm loginForm = new LoginForm(loginUsername, password);
+        LoginForm wrongPasswordLoginForm = new LoginForm("test@test.com", "12345"); //** 잘못된 패스워드
 
         //when
-        MvcResult mvcResult = mockMvc.perform(post("/myLogin")
+        MvcResult wrongPasswordResult = mockMvc.perform(post("/myLogin")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginForm)))
+                        .content(objectMapper.writeValueAsString(wrongPasswordLoginForm)))
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        String formErrorResultByJson = mvcResult.getResponse().getContentAsString();
+        FormErrorResult wrongPasswordError = objectMapper.readValue(
+                wrongPasswordResult.getResponse().getContentAsString(), FormErrorResult.class);
 
-        FormErrorResult formErrorResult = objectMapper.readValue(formErrorResultByJson, FormErrorResult.class);
+        //then
+        assertThat(wrongPasswordError.getState()).isEqualTo("400");
+        assertThat(wrongPasswordError.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
-        ErrorDto wrongPasswordErrorDto = formErrorResult.getErrorList().stream()
+        //** WrongPassword error code, field 확인
+        ErrorDto wrongPasswordErrorDto = wrongPasswordError.getErrorList().stream()
                 .filter(errorDto -> errorDto.getCode().equals("WrongPassword"))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("WrongPassword를 갖는 error가 없습니다."));
-
-        //then
-        assertThat(formErrorResult.getState()).isEqualTo("400");
-        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
-
         assertThat(wrongPasswordErrorDto.getField()).isEqualTo("password");
+
     }
 
     @Test
-    @DisplayName("로그인 실패 - 잘못된 아이디")
+    @DisplayName("로그인 실패_잘못된 아이디")
     public void login_wrongUsername_Test() throws Exception {
 
         //given
-        String loginUsername = "wrongTest@test.com"; //** 잘못된 아이디
-        String password = originPassword;
-
-        LoginForm loginForm = new LoginForm(loginUsername, password);
+        LoginForm nonExistResourceLoginForm = new LoginForm("wrongTest@test.com", "1234"); //** 잘못된 아이디
 
         //when
-        MvcResult mvcResult = mockMvc.perform(post("/myLogin")
+        MvcResult nonExistResourceResult = mockMvc.perform(post("/myLogin")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginForm)))
+                        .content(objectMapper.writeValueAsString(nonExistResourceLoginForm)))
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        String formErrorResultByJson = mvcResult.getResponse().getContentAsString();
-
-        BasicErrorResult basicErrorResult = objectMapper.readValue(formErrorResultByJson, BasicErrorResult.class);
+        BasicErrorResult nonExistResourceError = objectMapper.readValue(
+                nonExistResourceResult.getResponse().getContentAsString(), BasicErrorResult.class);
 
         //then
-        assertThat(basicErrorResult.getState()).isEqualTo("400");
-        assertThat(basicErrorResult.getException()).isEqualTo(NonExistResourceException.class.getSimpleName());
+        assertThat(nonExistResourceError.getState()).isEqualTo("400");
+        assertThat(nonExistResourceError.getException()).isEqualTo(NonExistResourceException.class.getSimpleName());
     }
 
 }

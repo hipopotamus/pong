@@ -9,14 +9,15 @@ import com.hipo.dataobjcet.form.AccountGenderForm;
 import com.hipo.dataobjcet.form.AccountNicknameForm;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
+import com.hipo.domain.entity.enums.Role;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.service.AccountService;
-import org.junit.jupiter.api.BeforeAll;
+import com.hipo.service.AuthService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,51 +39,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class AccountControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
+    @Autowired BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired AccountRepository accountRepository;
+    @Autowired AccountService accountService;
+    @Autowired AuthService authService;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    AccountService accountService;
-
-    static String originUsername = "test";
-    static String originEmail = "@test.com";
-    static String originPassword = "1234";
-    static String originNickname = "testNickname";
-    static Gender originGender = Gender.MAN;
-    static LocalDate originBirthDate = LocalDate.now();
-    static String originFileName = "test.jpeg";
-    static MockMultipartFile originFile;
-
-    static {
-        try {
-            originFile = new MockMultipartFile("profileFile", originFileName, "image/jpeg",
-                    new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @BeforeAll
-    void init() throws Exception {
-        for (int i = 1; i <= 10; i++) {
-            accountService.createAccount(originUsername + i + originEmail, originPassword, originNickname + i,
-                    originFile, originGender, originBirthDate);
-        }
+    @BeforeEach
+    public void init() {
+        Account account = new Account("test@test.com", bCryptPasswordEncoder.encode("1234"),
+                "testNickname", "/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg",
+                Role.User, Gender.MAN, LocalDate.now());
+        accountRepository.save(account);
     }
 
     @Test
@@ -92,10 +64,9 @@ class AccountControllerTest {
     public void createAccountTest() throws Exception {
 
         //given
-
-        String username = "test@naver.com";
+        String username = "createTest@test.com";
         String password = "1234";
-        String nickname = "testNickname";
+        String nickname = "createTestNickname";
         String gender = "MAN";
         String birthDate = "1890-01-01";
 
@@ -106,13 +77,13 @@ class AccountControllerTest {
         params.add("gender", gender);
         params.add("birthDate", birthDate);
 
-        String fileName = "hipo.jpeg";
-        MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
         mockMvc.perform(multipart("/account").file(file)
                         .params(params))
+                .andExpect(status().isOk())
                 .andReturn();
 
         Account account = accountRepository.findByUsername(username)
@@ -131,9 +102,9 @@ class AccountControllerTest {
     public void createAccount_WrongForm_Test() throws Exception {
 
         //given
-        String username = originUsername + 1 + originEmail; //** 중복된 username
+        String username = "test@test.com"; //** 중복된 username
         String password = "123"; //** 최소 길이보다 짧은 password
-        String nickname = originNickname + 1; //** 중복된 nickname
+        String nickname = "testNickname"; //** 중복된 nickname
         String gender = "MAN";
         String birthDate = "1000-021-01"; //** 잘못된 패턴인 birthDate;
 
@@ -151,6 +122,7 @@ class AccountControllerTest {
         //when
         MvcResult IllegalFormResult = mockMvc.perform(multipart("/account").file(file)
                         .params(params))
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
         FormErrorResult formErrorResult = objectMapper.readValue(
@@ -198,10 +170,11 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("닉네임 수정 성공")
-    @WithUserDetails("test1@test.com")
     public void updateAccountNicknameTest() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         String nickname = "updateNickname";
 
         AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
@@ -209,11 +182,12 @@ class AccountControllerTest {
         //when
         MvcResult mvcResult = mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
                         .content(objectMapper.writeValueAsString(accountNicknameForm)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Account account = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        Account account = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
 
         //then
@@ -222,13 +196,14 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("닉네임 수정 실패_잘못된 formData")
-    @WithUserDetails("test1@test.com")
     public void updateAccountNickname_IllegalFormData_Test() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         String lengthNickname = "updateNicknameupdateNicknameupdateNicknameupdateNicknameupdateNickname"; //** 최대 길이(30자 이상)보다 긴 nickname
         String patternNickname = ".!?"; //** 잘못된 형식의 nickname
-        String nicknameDuplicationNickname = originNickname + 1; //** 중복된 nickname
+        String nicknameDuplicationNickname = "testNickname"; //** 중복된 nickname
 
         AccountNicknameForm lengthNicknameForm = new AccountNicknameForm(lengthNickname);
         AccountNicknameForm patternNicknameForm = new AccountNicknameForm(patternNickname);
@@ -237,23 +212,26 @@ class AccountControllerTest {
         //when
         MvcResult lengthResult = mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
                         .content(objectMapper.writeValueAsString(lengthNicknameForm)))
                 .andReturn();
         MvcResult patternResult = mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
                         .content(objectMapper.writeValueAsString(patternNicknameForm)))
                 .andReturn();
         MvcResult nicknameDuplicationResult = mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
                         .content(objectMapper.writeValueAsString(nicknameDuplicationNicknameForm)))
                 .andReturn();
 
-        FormErrorResult lengthError = objectMapper.readValue(lengthResult.getResponse().getContentAsString(),
-                FormErrorResult.class);
-        FormErrorResult patternError = objectMapper.readValue(patternResult.getResponse().getContentAsString(),
-                FormErrorResult.class);
-        FormErrorResult nicknameDuplicationError = objectMapper.readValue(nicknameDuplicationResult.getResponse().getContentAsString(),
-                FormErrorResult.class);
+        FormErrorResult lengthError = objectMapper.readValue(
+                lengthResult.getResponse().getContentAsString(), FormErrorResult.class);
+        FormErrorResult patternError = objectMapper.readValue(
+                patternResult.getResponse().getContentAsString(), FormErrorResult.class);
+        FormErrorResult nicknameDuplicationError = objectMapper.readValue(
+                nicknameDuplicationResult.getResponse().getContentAsString(), FormErrorResult.class);
 
         //then
         //** Length Error code, field 확인
@@ -280,25 +258,26 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("프로필 이미지 수정 성공")
-    @WithUserDetails("test1@test.com")
     public void updateProfileImgTest() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         String fileName = "updateProfileImg.jpeg";
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
-        String beforeUpdateProfileImgPath = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        String beforeUpdateProfileImgPath = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
                 .getProfileImgPath();
 
-
-        MvcResult mvcResult = mockMvc.perform(multipart("/account/profileImg").file(file))
+        MvcResult mvcResult = mockMvc.perform(multipart("/account/profileImg").file(file)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String profileImgPath = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        String profileImgPath = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
                 .getProfileImgPath();
 
@@ -308,10 +287,11 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("프로필 이미지 수정 실패_잘못된 formData")
-    @WithUserDetails("test1@test.com")
     public void updateProfileImg_IllegalFromData_Test() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         String blankFileName = null; //** null인 filename
         MockMultipartFile blankFile = new MockMultipartFile("profileFile", blankFileName, "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
@@ -325,15 +305,16 @@ class AccountControllerTest {
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
-        MvcResult blankResult = mockMvc.perform(multipart("/account/profileImg").file(blankFile))
+        MvcResult blankResult = mockMvc.perform(multipart("/account/profileImg").file(blankFile)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
-
-        MvcResult nonExtractResult = mockMvc.perform(multipart("/account/profileImg").file(nonExtractFile))
+        MvcResult nonExtractResult = mockMvc.perform(multipart("/account/profileImg").file(nonExtractFile)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
-
-        MvcResult onlyDotResult = mockMvc.perform(multipart("/account/profileImg").file(onlyDotFile))
+        MvcResult onlyDotResult = mockMvc.perform(multipart("/account/profileImg").file(onlyDotFile)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
@@ -370,10 +351,11 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("생년월일 수정 성공")
-    @WithUserDetails("test1@test.com")
     public void updateBrithDateTest() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         LocalDate birthDate = LocalDate.of(1000, 10, 10);
 
         AccountBirthDateForm accountBirthDateForm = new AccountBirthDateForm(birthDate);
@@ -381,11 +363,12 @@ class AccountControllerTest {
         //when
         MvcResult mvcResult = mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accountBirthDateForm)))
+                        .content(objectMapper.writeValueAsString(accountBirthDateForm))
+                        .header("Authorization", jwtToken))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Account account = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        Account account = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
 
         //then
@@ -394,10 +377,11 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("생년월일 수정 실패_잘못된 formData")
-    @WithUserDetails("test1@test.com")
     public void updateBrithDate_IllegalFormData_Test() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         String httpMessageNotReadableBirthDate = "{\"birthDate\":\"1000-1222-01\"}";
         LocalDate notNullBirthDate = null;
         LocalDate futureBirthDate = LocalDate.of(4000, 10, 10);
@@ -408,19 +392,22 @@ class AccountControllerTest {
         //when
         MvcResult httpMessageNotReadableResult = mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(httpMessageNotReadableBirthDate))
+                        .content(httpMessageNotReadableBirthDate)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
         MvcResult notNullResult = mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(notNullBirthDateForm)))
+                        .content(objectMapper.writeValueAsString(notNullBirthDateForm))
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
         MvcResult futureBirthDateResult = mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(futureBirthDateForm)))
+                        .content(objectMapper.writeValueAsString(futureBirthDateForm))
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
@@ -453,26 +440,28 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("성별 수정 성공")
-    @WithUserDetails("test1@test.com")
     public void updateGenderTest() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         Gender gender = Gender.FEMALE;
 
         AccountGenderForm accountGenderForm = new AccountGenderForm(gender);
 
         //when
-        Gender beforeGender = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        Gender beforeGender = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
                 .getGender();
 
         MvcResult mvcResult = mockMvc.perform(post("/account/gender")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accountGenderForm)))
+                        .content(objectMapper.writeValueAsString(accountGenderForm))
+                        .header("Authorization", jwtToken))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Gender afterGender = accountRepository.findByUsername(originUsername + 1 + originEmail)
+        Gender afterGender = accountRepository.findByUsername("test@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
                 .getGender();
 
@@ -483,23 +472,26 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("성별 수정 실패_잘못된 formData")
-    @WithUserDetails("test1@test.com")
     public void updateGender_IllegalFormData_Test() throws Exception {
 
         //given
+        String jwtToken = authService.login("test@test.com", "1234");
+
         AccountGenderForm notNullGenderForm = new AccountGenderForm(null);
         String httpMessageNotReadableGender = "{\"gender\":\"M\"}";
 
         //when
         MvcResult notNullResult = mockMvc.perform(post("/account/gender")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(notNullGenderForm)))
+                        .content(objectMapper.writeValueAsString(notNullGenderForm))
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
         MvcResult httpMessageNotReadableResult = mockMvc.perform(post("/account/gender")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(httpMessageNotReadableGender))
+                        .content(httpMessageNotReadableGender)
+                        .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
