@@ -37,20 +37,20 @@ public class RelationController {
     }
 
     @ApiOperation(value = "친구 목록 조회", notes = "회원 정보를 받아 해당 회원의 친구 목록을 조회 합니다.")
-    @GetMapping("/relation/friend/{accountId}")
-    public List<AccountDto> findFriend(@PathVariable Long accountId) {
-        return relationService.findFriends(accountId);
+    @GetMapping("/relation/friends")
+    public List<AccountDto> findFriend(@ApiIgnore @LoginAccountId Long loginAccountId) {
+        return relationService.findFriends(loginAccountId);
     }
 
-    @ApiOperation(value = "친구 요청 목록 조회", notes = "회원 정보를 받아 해당 회원의 친구 요청 목록을 조회 합니다.")
-    @GetMapping("/relation/request/{accountId}")
-    public List<AccountDto> findRequests(@PathVariable Long accountId) {
-        return relationService.findRequests(accountId);
+    @ApiOperation(value = "친구 요청 목록 조회", notes = "로그인한 회원의 친구 요청 목록을 조회 합니다.")
+    @GetMapping("/relation/requests")
+    public List<AccountDto> findRequests(@ApiIgnore @LoginAccountId Long loginAccountId) {
+        return relationService.findRequests(loginAccountId);
     }
 
-    @ApiOperation(value = "받은 친구 요청 목록 조회", notes = "회원 정보를 받아 해당 회원이 받은 친구 요청 목록을 조회 합니다.")
-    @GetMapping("/relation/waitRequest/{accountId}")
-    public List<AccountDto> findWaitingRequests(@PathVariable Long accountId) {
-        return relationService.findWaitingRequests(accountId);
+    @ApiOperation(value = "받은 친구 요청 목록 조회",  notes = "로그인한 회원이 받은 친구 요청 목록을 조회 합니다.")
+    @GetMapping("/relation/waitRequests")
+    public List<AccountDto> findWaitingRequests(@ApiIgnore @LoginAccountId Long loginAccountId) {
+        return relationService.findWaitingRequests(loginAccountId);
     }
 }

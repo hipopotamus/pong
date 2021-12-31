@@ -1,5 +1,6 @@
 package com.hipo.repository;
 
+import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Relation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public interface RelationRepository extends JpaRepository<Relation, Long> {
 
-    Optional<Relation> findByFromAccount(Long fromAccountId);
+    Optional<Relation> findByFromAccount(Account account);
 
     @Query("select relations from Relation relations " +
             "join fetch relations.fromAccount fromAccount " +
@@ -22,11 +23,13 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
             "join fetch relations.fromAccount fromAccount " +
             "join fetch relations.toAccount toAccount " +
             "where fromAccount.id = :accountId and relations.relationState = 'REQUEST'")
-    List<Relation> findRequesting(Long accountId);
+    List<Relation> findRequesting(@Param("accountId") Long accountId);
 
     @Query("select relations from Relation relations " +
             "join fetch relations.fromAccount fromAccount " +
             "join fetch relations.toAccount toAccount " +
             "where toAccount.id = :accountId and relations.relationState = 'REQUEST'")
-    List<Relation> findWaitingRequests(Long accountId);
+    List<Relation> findWaitingRequests(@Param("accountId") Long accountId);
+
+    boolean existsByFromAccount(Account account);
 }
