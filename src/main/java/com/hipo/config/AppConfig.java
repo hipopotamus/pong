@@ -1,8 +1,10 @@
 package com.hipo.config;
 
+import com.hipo.domain.UserAccount;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
@@ -20,7 +22,13 @@ public class AppConfig {
         return new AuditorAware<String>() {
             @Override
             public Optional<String> getCurrentAuditor() {
-                return Optional.of("tempAuditor");
+
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal == "anonymousUser") {
+                    return Optional.of(principal.toString());
+                }
+
+                return Optional.of(((UserAccount) principal).getAccount().getNickname());
             }
         };
     }
