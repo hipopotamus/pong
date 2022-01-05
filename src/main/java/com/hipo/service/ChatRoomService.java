@@ -50,4 +50,10 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
         return new PageImpl<>(chatRoomDtoList, pageable, chatRoom.getTotalElements());
     }
+
+    public ChatRoomDto findById(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 ChatRoom을 찾을 수 없습니다."));
+        return new ChatRoomDto(chatRoom);
+    }
 }

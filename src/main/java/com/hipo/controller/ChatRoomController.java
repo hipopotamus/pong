@@ -6,6 +6,7 @@ import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.ChatRoomNameForm;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.service.ChatRoomService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +18,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
+@Api(tags = {"4. ChatRoom"})
 @RestController
 @RequiredArgsConstructor
 public class ChatRoomController {
@@ -46,5 +48,11 @@ public class ChatRoomController {
     public Iterable<ChatRoomDto> findChatRoom(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
                                           @RequestParam(value = "all", required = false) boolean all) {
         return chatRoomService.findChatRoom(loginAccountId, pageable, all);
+    }
+
+    @ApiOperation(value = "채팅방 조회", notes = "채팅방 아이디를 받고 해당 채팅방을 조회합니다.")
+    @GetMapping("/chatRoom/{id}")
+    public ChatRoomDto findById(@PathVariable("id") Long id) {
+        return chatRoomService.findById(id);
     }
 }

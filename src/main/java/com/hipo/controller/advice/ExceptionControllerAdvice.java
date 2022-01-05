@@ -4,6 +4,7 @@ import com.hipo.dataobjcet.dto.BasicErrorResult;
 import com.hipo.dataobjcet.dto.ErrorDto;
 import com.hipo.dataobjcet.dto.FormErrorResult;
 import com.hipo.exception.IllegalFormException;
+import com.hipo.exception.IllegalRequestException;
 import com.hipo.exception.NonExistResourceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -39,6 +40,12 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler({HttpMessageNotReadableException.class})
     public BasicErrorResult HttpMessageNotReadableExceptionHandler(HttpMessageNotReadableException exception) {
         return new BasicErrorResult("400", exception.getClass().getSimpleName(), "잘못된 형식의 요청입니다.");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({IllegalRequestException.class})
+    public BasicErrorResult IllegalRequestExceptionHandler(IllegalRequestException exception) {
+        return new BasicErrorResult("400", exception.getClass().getSimpleName(), exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

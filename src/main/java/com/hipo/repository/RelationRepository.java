@@ -2,6 +2,7 @@ package com.hipo.repository;
 
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Relation;
+import com.hipo.domain.entity.enums.RelationState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,4 +33,7 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
     List<Relation> findWaitingRequests(@Param("accountId") Long accountId);
 
     boolean existsByFromAccount(Account account);
+
+    boolean existsByFromAccountAndToAccountAndRelationStateEquals(Account fromAccount, Account toAccount,
+                                                                  RelationState relationState);
 }
