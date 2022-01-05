@@ -40,7 +40,7 @@ public class ChatRoomService {
 
     public Iterable<ChatRoomDto> findChatRoom(Long accountId, Pageable pageable, boolean all) {
         if (all) {
-            return chatRoomRepository.findAll().stream()
+            return chatRoomRepository.findAllChatRoom(accountId).stream()
                     .map(ChatRoomDto::new)
                     .collect(Collectors.toList());
         }

@@ -17,13 +17,18 @@ public class Message {
     @Column(name = "message_id")
     private Long id;
 
+    private String message;
+
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    private String message;
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
+
 
 }
