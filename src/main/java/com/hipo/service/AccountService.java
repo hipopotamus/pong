@@ -1,5 +1,6 @@
 package com.hipo.service;
 
+import com.hipo.dataobjcet.dto.AccountDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
@@ -81,6 +82,13 @@ public class AccountService {
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
 
         account.updateBirthDate(birthDate);
+    }
+
+    public AccountDto findByNickname(String nickname) {
+        Account account = accountRepository.findByNickname(nickname)
+                .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
+
+        return new AccountDto(account);
     }
 
 }

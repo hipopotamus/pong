@@ -3,6 +3,7 @@ package com.hipo.controller.advice;
 import com.hipo.dataobjcet.dto.BasicErrorResult;
 import com.hipo.dataobjcet.dto.ErrorDto;
 import com.hipo.dataobjcet.dto.FormErrorResult;
+import com.hipo.exception.DuplicationRequestException;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.exception.IllegalRequestException;
 import com.hipo.exception.NonExistResourceException;
@@ -45,6 +46,12 @@ public class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({IllegalRequestException.class})
     public BasicErrorResult IllegalRequestExceptionHandler(IllegalRequestException exception) {
+        return new BasicErrorResult("400", exception.getClass().getSimpleName(), exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({DuplicationRequestException.class})
+    public BasicErrorResult DuplicationRequestException(DuplicationRequestException exception) {
         return new BasicErrorResult("400", exception.getClass().getSimpleName(), exception.getMessage());
     }
 

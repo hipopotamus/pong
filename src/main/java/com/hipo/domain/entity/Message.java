@@ -1,5 +1,6 @@
 package com.hipo.domain.entity;
 
+import com.hipo.domain.entity.base.BaseTime;
 import com.hipo.domain.entity.enums.MessageType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @EqualsAndHashCode(of = "id")
 @Where(clause = "deleted = false")
-public class Message {
+public class Message extends BaseTime {
 
     @Id @GeneratedValue
     @Column(name = "message_id")
@@ -30,5 +31,13 @@ public class Message {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
+    protected Message() {
+    }
 
+    public Message(String message, MessageType messageType, Account account, ChatRoom chatRoom) {
+        this.message = message;
+        this.messageType = messageType;
+        this.account = account;
+        this.chatRoom = chatRoom;
+    }
 }

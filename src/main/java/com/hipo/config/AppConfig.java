@@ -23,6 +23,12 @@ public class AppConfig {
             @Override
             public Optional<String> getCurrentAuditor() {
 
+                //** test용
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    return Optional.of("testUser");
+                }
+                //** test용
+
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal == "anonymousUser") {
                     return Optional.of(principal.toString());

@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface RelationRepository extends JpaRepository<Relation, Long> {
 
-    Optional<Relation> findByFromAccount(Account account);
+    Optional<Relation> findByFromAccountAndToAccountAndRelationStateEquals(Account fromAccount, Account toAccount,
+                                                                           RelationState relationState);
 
     @Query("select relations from Relation relations " +
             "join fetch relations.fromAccount fromAccount " +
@@ -31,8 +32,6 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
             "join fetch relations.toAccount toAccount " +
             "where toAccount.id = :accountId and relations.relationState = 'REQUEST'")
     List<Relation> findWaitingRequests(@Param("accountId") Long accountId);
-
-    boolean existsByFromAccount(Account account);
 
     boolean existsByFromAccountAndToAccountAndRelationStateEquals(Account fromAccount, Account toAccount,
                                                                   RelationState relationState);
