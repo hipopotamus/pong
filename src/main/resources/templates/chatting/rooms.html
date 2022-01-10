@@ -8,7 +8,7 @@
 <h1>채팅방 목록</h1>
 <ul>
     <li th:each="chatRoom : ${list}">
-        <a th:text="${chatRoom.getName()}" th:href="|/chat/room/${chatRoom.getId()}?loginAccountId=${account.getId()}|"></a>
+        <a th:text="${chatRoom.getName()}" th:href="|/chatting/room/${chatRoom.getId()}?loginAccountId=${account.getId()}|"></a>
     </li>
 </ul>
 </body>

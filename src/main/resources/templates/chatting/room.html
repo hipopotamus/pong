@@ -9,6 +9,9 @@
 <body>
 <h1 th:text="${room.getName()}"></h1>
 <div class="content">
+    <ul class="chat_box" th:each="message : ${messages}">
+        <li>[[${message.messageType}]]_[[${message.message}]]([[${message.accountDto.nickname}]])2</li>
+    </ul>
     <ul class="chat_box" id="msgArea">
     </ul>
     <input type="text" id="msg" class="form-control">
@@ -18,15 +21,15 @@
     $(document).ready(function () {
         var roomId = [[${room.id}]];
         var username = [[${account.nickname}]];
+        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MUB0ZXN0LmNvbSIsImlkIjoyLCJleHAiOjE2NDE4MDQyOTgsInVzZXJuYW1lIjoidGVzdDFAdGVzdC5jb20ifQ.TiXJcVWsjxFxJbPl_YntvtGhg21-1XV-kT2if8ht1JHaf7tO7LRQvBOkf0IjpE-tZklXCRgIx-4jJ38cuAZa7g";
 
         var sock = new SockJS("/stomp");
         var client = Stomp.over(sock);
 
-        client.connect({}, function () {
+        client.connect({Authorization:token}, function () {
             client.subscribe('/sub/chat/room/' + roomId, function (chat) {
-                console.log(chat);
                 var content = JSON.parse(chat.body);
-                $("#msgArea").append('<li>' + content.messageType + content.message + '(' + content.writer + ')</li>')
+                $("#msgArea").append('<li>' + content.messageType + '_' + content.message + '(' + content.writer + ')</li>')
             });
             client.send('/pub/chat/enter', {}, JSON.stringify({roomId: roomId, writer: username}));
         });

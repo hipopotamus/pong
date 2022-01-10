@@ -14,13 +14,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("select message from Message message " +
             "join fetch message.chatRoom chatRoom " +
             "join fetch message.account account " +
-            "where chatRoom.id = :chatRoomId order by message.createDate desc")
+            "where chatRoom.id = :chatRoomId order by message.createDate")
     Slice<Message> findChatRoomMessage(@Param("chatRoomId") Long chatRoomId, Pageable pageable);
 
     @Query("select message from Message message " +
             "join fetch message.chatRoom chatRoom " +
             "join fetch message.account account " +
-            "where chatRoom.id = :chatRoomId order by message.createDate desc")
+            "where chatRoom.id = :chatRoomId order by message.createDate")
     List<Message> findAllChatRoomMessage(@Param("chatRoomId") Long chatRoomId);
 
 }

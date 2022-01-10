@@ -3,8 +3,10 @@ package com.hipo.test;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.ChatRoomRepository;
 import com.hipo.service.ChatRoomService;
+import com.hipo.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,13 +18,14 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(value = "/chat")
+@RequestMapping(value = "/chatting")
 @Log4j2
 public class RoomController {
 
     private final ChatRoomService chatRoomService;
     private final AccountRepository accountRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final MessageService messageService;
 
     //채팅방 목록 조회
     @GetMapping(value = "/rooms")
@@ -31,15 +34,17 @@ public class RoomController {
         model.addAttribute("list", chatRoomService.findChatRoom(loginAccountId, pageable, all));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));
 
-        return "/chat/rooms";
+        return "/chatting/rooms";
     }
 
     //채팅방 조회
     @GetMapping("/room/{roomId}")
     public String getRoom(@RequestParam Long loginAccountId, @PathVariable("roomId") Long roomId, Model model){
 
+        model.addAttribute("messages", messageService.findChatRoomMessage(roomId,
+                PageRequest.of(0, 10), false));
         model.addAttribute("room", chatRoomRepository.findById(roomId).orElse(null));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));
-        return "/chat/room";
+        return "/chatting/room";
     }
 }
