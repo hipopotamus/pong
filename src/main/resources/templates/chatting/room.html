@@ -21,12 +21,12 @@
     $(document).ready(function () {
         var roomId = [[${room.id}]];
         var username = [[${account.nickname}]];
-        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MUB0ZXN0LmNvbSIsImlkIjoyLCJleHAiOjE2NDE4MDQyOTgsInVzZXJuYW1lIjoidGVzdDFAdGVzdC5jb20ifQ.TiXJcVWsjxFxJbPl_YntvtGhg21-1XV-kT2if8ht1JHaf7tO7LRQvBOkf0IjpE-tZklXCRgIx-4jJ38cuAZa7g";
+        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0M0B0ZXN0LmNvbSIsImlkIjo0LCJleHAiOjE2NDE4ODc1ODMsInVzZXJuYW1lIjoidGVzdDNAdGVzdC5jb20ifQ.et0x8tDmxVdGw1hmIVjK5v-Upt9fGq543wR8dy8jVgESn6uMFULS6hqWbHq7KEyLBzvbeFrlMacu3vXQ1jjBag";
 
         var sock = new SockJS("/stomp");
         var client = Stomp.over(sock);
 
-        client.connect({Authorization:token}, function () {
+        client.connect({Authorization:token, RoomId:roomId}, function () {
             client.subscribe('/sub/chat/room/' + roomId, function (chat) {
                 var content = JSON.parse(chat.body);
                 $("#msgArea").append('<li>' + content.messageType + '_' + content.message + '(' + content.writer + ')</li>')

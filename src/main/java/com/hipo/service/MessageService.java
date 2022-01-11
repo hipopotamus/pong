@@ -5,6 +5,7 @@ import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;
 import com.hipo.domain.entity.Message;
 import com.hipo.domain.entity.enums.MessageType;
+import com.hipo.domain.processor.JudgeProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.ChatRoomRepository;
@@ -27,6 +28,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final AccountRepository accountRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final JudgeProcessor judgeProcessor;
 
     @Transactional
     public Message createMessage(String message, MessageType messageType, Long accountId, Long chatRoomId) {
@@ -34,6 +36,7 @@ public class MessageService {
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 ChatRoom을 찾을 수 없습니다."));
+        judgeProcessor.isChatRoomMember(account, chatRoom);
 
         return messageRepository.save(new Message(message, messageType, account, chatRoom));
     }
@@ -51,6 +54,6 @@ public class MessageService {
                 .map(MessageDto::new)
                 .collect(Collectors.toList());
 
-        return new SliceImpl<MessageDto>(messageDtoList, pageable, chatRoomMessage.hasNext());
+        return new SliceImpl<>(messageDtoList, pageable, chatRoomMessage.hasNext());
     }
 }
