@@ -9,6 +9,9 @@ import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.RelationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +35,10 @@ public class RelationService {
         Account toAccount = accountRepository.findById(toAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
 
-        judgeProcessor.isDuplicationFriendRequest(fromAccount, toAccount);
+        judgeProcessor.isNotSelfRequest(fromAccount, toAccount);
+        judgeProcessor.isNotFriendRelation(fromAccount, toAccount);
+        judgeProcessor.isFirstFriendRequest(fromAccount, toAccount);
+        judgeProcessor.isFirstFriendRequest(toAccount, fromAccount);
 
         Relation request = Relation.builder()
                 .fromAccount(fromAccount)
@@ -64,27 +70,69 @@ public class RelationService {
         return relationRepository.save(friend);
     }
 
-    public List<AccountDto> findFriends(Long accountId) {
-        List<Relation> friends = relationRepository.findFriends(accountId);
+    public Iterable<AccountDto> findFriends(Long accountId, Pageable pageable, boolean all) {
 
-        return friends.stream()
+        if (all) {
+            return relationRepository.findAllFriend(accountId).stream()
+                    .map(relation -> new AccountDto(relation.getToAccount()))
+                    .collect(Collectors.toList());
+        }
+
+        Page<Relation> friends = relationRepository.findFriends(accountId, pageable);
+
+        List<AccountDto> accountDtoList = friends.stream()
                 .map(relation -> new AccountDto(relation.getToAccount()))
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(accountDtoList, pageable, friends.getTotalElements());
+
     }
 
-    public List<AccountDto> findRequests(Long accountId) {
-        List<Relation> requests = relationRepository.findRequesting(accountId);
+    public Iterable<AccountDto> findRequests(Long accountId, Pageable pageable, boolean all) {
 
-        return requests.stream()
+        if (all) {
+            return relationRepository.findAllRequesting(accountId).stream()
+                    .map(relation -> new AccountDto(relation.getToAccount()))
+                    .collect(Collectors.toList());
+        }
+
+        Page<Relation> requesting = relationRepository.findRequesting(accountId, pageable);
+
+        List<AccountDto> accountDtoList = requesting.stream()
                 .map(relation -> new AccountDto(relation.getToAccount()))
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(accountDtoList, pageable, requesting.getTotalElements());
     }
 
-    public List<AccountDto> findWaitingRequests(Long accountId) {
-        List<Relation> waitingRequests = relationRepository.findWaitingRequests(accountId);
+    public Iterable<AccountDto> findWaitingRequests(Long accountId, Pageable pageable, boolean all) {
 
-        return waitingRequests.stream()
+        if (all) {
+            return relationRepository.findAllWaitingRequest(accountId).stream()
+                    .map(relation -> new AccountDto(relation.getFromAccount()))
+                    .collect(Collectors.toList());
+        }
+
+        Page<Relation> waitingRequests = relationRepository.findWaitingRequests(accountId, pageable);
+
+        List<AccountDto> accountDtoList = waitingRequests.stream()
                 .map(relation -> new AccountDto(relation.getFromAccount()))
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(accountDtoList, pageable, waitingRequests.getTotalElements());
+    }
+
+    @Transactional
+    public void rejectRequest(Long fromAccountId, Long toAccountId) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+
+        Relation relation = relationRepository
+                .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
+                .orElseThrow(() -> new NonExistResourceException("해당 친구 요청을 찾을 수 없습니다."));
+
+        relation.softDelete();
     }
 }

@@ -2,6 +2,7 @@ package com.hipo.controller;
 
 import com.hipo.argumentresolver.LoginAccountId;
 import com.hipo.dataobjcet.dto.ChatRoomDto;
+import com.hipo.dataobjcet.dto.Result;
 import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.ChatRoomNameForm;
 import com.hipo.exception.IllegalFormException;
@@ -45,8 +46,11 @@ public class ChatRoomController {
             @ApiImplicitParam(name = "page", value = "페이지 번호", dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "size", value = "페이지 사이즈", dataType = "int", paramType = "query")})
     @GetMapping("/chatRooms")
-    public Iterable<ChatRoomDto> findChatRoom(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
-                                          @RequestParam(value = "all", required = false) boolean all) {
+    public Object findChatRoom(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
+                                                      @RequestParam(value = "all", required = false) boolean all) {
+        if (all) {
+            return new Result<>(chatRoomService.findChatRoom(loginAccountId, pageable, all));
+        }
         return chatRoomService.findChatRoom(loginAccountId, pageable, all);
     }
 

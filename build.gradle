@@ -39,6 +39,9 @@ dependencies {
     implementation group: 'org.webjars', name: 'sockjs-client', version: '1.1.2'
     implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.3-1'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+    implementation group: 'com.google.code.gson', name: 'gson'
+    //objectMapper 사용시 LocalDateTime을 가져오지 못하는 오류 해결
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'

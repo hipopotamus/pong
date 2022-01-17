@@ -41,9 +41,9 @@ public class MessageService {
         return messageRepository.save(new Message(message, messageType, account, chatRoom));
     }
 
-    public Iterable<MessageDto> findChatRoomMessage(Long chatRoomId, Pageable pageable, boolean paged) {
+    public Iterable<MessageDto> findChatRoomMessage(Long chatRoomId, Pageable pageable, boolean all) {
 
-        if (!paged) {
+        if (all) {
             return messageRepository.findAllChatRoomMessage(chatRoomId).stream()
                     .map(MessageDto::new)
                     .collect(Collectors.toList());

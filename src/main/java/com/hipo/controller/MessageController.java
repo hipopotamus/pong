@@ -1,6 +1,6 @@
 package com.hipo.controller;
 
-import com.hipo.dataobjcet.dto.MessageDto;
+import com.hipo.dataobjcet.dto.Result;
 import com.hipo.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -26,9 +26,12 @@ public class MessageController {
             @ApiImplicitParam(name = "page", value = "페이지 번호", dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "size", value = "페이지 사이즈", dataType = "int", paramType = "query")})
     @GetMapping("/message/{chatRoomId}")
-    public Iterable<MessageDto> findChatRoomMessage(@PathVariable("chatRoomId") Long chatRoomId, Pageable pageable,
-                                                    @RequestParam(value = "paged", required = false) boolean paged) {
-        return messageService.findChatRoomMessage(chatRoomId, pageable, paged);
+    public Object findChatRoomMessage(@PathVariable("chatRoomId") Long chatRoomId, Pageable pageable,
+                                                            @RequestParam(value = "paged", required = false) boolean all) {
+        if (all) {
+            return new Result<>(messageService.findChatRoomMessage(chatRoomId, pageable, all));
+        }
+        return messageService.findChatRoomMessage(chatRoomId, pageable, all);
     }
 
 }

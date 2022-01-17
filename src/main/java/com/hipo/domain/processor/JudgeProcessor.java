@@ -32,12 +32,29 @@ public class JudgeProcessor {
         return true;
     }
 
-    public boolean isDuplicationFriendRequest(Account fromAccount, Account toAccount) {
+    public boolean isFirstFriendRequest(Account fromAccount, Account toAccount) {
         if (relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount,
                 RelationState.REQUEST)) {
             throw new DuplicationRequestException("이미 존재하는 요청입니다.");
         }
         return true;
     }
+
+    public boolean isNotFriendRelation(Account inviteAccount, Account acceptAccount) {
+        if (relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(inviteAccount, acceptAccount
+                , RelationState.FRIEND)) {
+            throw new IllegalRequestException("이미 친구 관계입니다.");
+        }
+        return true;
+    }
+
+    public boolean isNotSelfRequest(Account fromAccount, Account toAccount) {
+        if (fromAccount.equals(toAccount)) {
+            throw new IllegalRequestException("자기자신에 대한 요청입니다.");
+        }
+        return true;
+    }
+
+
 
 }

@@ -10,6 +10,7 @@ import com.hipo.dataobjcet.form.AccountNicknameForm;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
+import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
@@ -50,6 +51,7 @@ class AccountControllerTest {
     @Autowired AccountRepository accountRepository;
     @Autowired AccountService accountService;
     @Autowired AuthService authService;
+    @Autowired JwtProcessor jwtProcessor;
 
     @BeforeEach
     public void init() {
@@ -64,18 +66,12 @@ class AccountControllerTest {
     public void createAccountTest() throws Exception {
 
         //given
-        String username = "createTest@test.com";
-        String password = "1234";
-        String nickname = "createTestNickname";
-        String gender = "MAN";
-        String birthDate = "1890-01-01";
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("username", username);
-        params.add("password", password);
-        params.add("nickname", nickname);
-        params.add("gender", gender);
-        params.add("birthDate", birthDate);
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
 
         MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
@@ -86,15 +82,15 @@ class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Account account = accountRepository.findByUsername(username)
+        Account account = accountRepository.findByUsername("createTest@test.com")
                 .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
 
         //then
-        assertThat(account.getUsername()).isEqualTo(username);
-        assertThat(bCryptPasswordEncoder.matches(password, account.getPassword())).isTrue();
-        assertThat(account.getNickname()).isEqualTo(nickname);
-        assertThat(account.getGender().toString()).isEqualTo(gender);
-        assertThat(account.getBirthDate().toString()).isEqualTo(birthDate);
+        assertThat(account.getUsername()).isEqualTo("createTest@test.com");
+        assertThat(bCryptPasswordEncoder.matches("1234", account.getPassword())).isTrue();
+        assertThat(account.getNickname()).isEqualTo("createTestNickname");
+        assertThat(account.getGender().toString()).isEqualTo("MAN");
+        assertThat(account.getBirthDate().toString()).isEqualTo("1890-01-01");
     }
 
     @Test
