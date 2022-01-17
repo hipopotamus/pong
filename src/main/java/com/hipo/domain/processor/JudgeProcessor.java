@@ -56,5 +56,11 @@ public class JudgeProcessor {
     }
 
 
-
+    public boolean isNotBlockRelation(Account fromAccount, Account toAccount) {
+        if (relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount
+                , RelationState.BLOCK)) {
+            throw new IllegalRequestException("차단된 회원입니다.");
+        }
+        return true;
+    }
 }

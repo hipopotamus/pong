@@ -5,6 +5,7 @@ import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Relation;
 import com.hipo.domain.entity.enums.RelationState;
 import com.hipo.domain.processor.JudgeProcessor;
+import com.hipo.exception.DuplicationRequestException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.RelationRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +37,7 @@ public class RelationService {
         Account toAccount = accountRepository.findById(toAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
 
+        judgeProcessor.isNotBlockRelation(fromAccount, toAccount);
         judgeProcessor.isNotSelfRequest(fromAccount, toAccount);
         judgeProcessor.isNotFriendRelation(fromAccount, toAccount);
         judgeProcessor.isFirstFriendRequest(fromAccount, toAccount);
@@ -49,12 +52,28 @@ public class RelationService {
     }
 
     @Transactional
+    public void rejectRequest(Long fromAccountId, Long toAccountId) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+
+        Relation relation = relationRepository
+                .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
+                .orElseThrow(() -> new NonExistResourceException("해당 친구 요청을 찾을 수 없습니다."));
+
+        relation.softDelete();
+    }
+
+    @Transactional
     public Relation acceptFriend(Long acceptAccountId, Long requestAccountId) {
 
         Account acceptAccount = accountRepository.findById(acceptAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
         Account requestAccount = accountRepository.findById(requestAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
+
+        judgeProcessor.isNotBlockRelation(acceptAccount, requestAccount);
 
         Relation requestingRelation = relationRepository
                 .findByFromAccountAndToAccountAndRelationStateEquals(requestAccount, acceptAccount, RelationState.REQUEST)
@@ -68,6 +87,50 @@ public class RelationService {
                 .relationState(RelationState.FRIEND)
                 .build();
         return relationRepository.save(friend);
+    }
+
+    @Transactional
+    public void block(Long fromAccountId, Long toAccountId) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+
+        Optional<Relation> OptionalRelation = relationRepository.findByFromAccountAndToAccount(fromAccount, toAccount);
+        if (!OptionalRelation.isPresent()) {
+            Relation blockRelation = Relation.builder()
+                    .fromAccount(fromAccount)
+                    .toAccount(toAccount)
+                    .relationState(RelationState.BLOCK)
+                    .build();
+            relationRepository.save(blockRelation);
+            return;
+        }
+
+        Relation relation = OptionalRelation.get();
+        if (relation.getRelationState() == RelationState.BLOCK) {
+            throw new DuplicationRequestException("이미 차단된 상대 입니다.");
+        }
+        if (relation.getRelationState() == RelationState.REQUEST || relation.getRelationState() == RelationState.FRIEND) {
+            relation.block();
+        }
+    }
+
+    public Iterable<AccountDto> findBlockAccounts(Long accountId, Pageable pageable, boolean all) {
+
+        if (all) {
+            return relationRepository.findAllBlockAccount(accountId).stream()
+                    .map(relation -> new AccountDto(relation.getToAccount()))
+                    .collect(Collectors.toList());
+        }
+
+        Page<Relation> blockAccounts = relationRepository.findBlockAccounts(accountId, pageable);
+
+        List<AccountDto> accountDtoList = blockAccounts.stream()
+                .map(relation -> new AccountDto(relation.getToAccount()))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(accountDtoList, pageable, blockAccounts.getTotalElements());
     }
 
     public Iterable<AccountDto> findFriends(Long accountId, Pageable pageable, boolean all) {
@@ -120,19 +183,5 @@ public class RelationService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(accountDtoList, pageable, waitingRequests.getTotalElements());
-    }
-
-    @Transactional
-    public void rejectRequest(Long fromAccountId, Long toAccountId) {
-        Account fromAccount = accountRepository.findById(fromAccountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
-        Account toAccount = accountRepository.findById(toAccountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
-
-        Relation relation = relationRepository
-                .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
-                .orElseThrow(() -> new NonExistResourceException("해당 친구 요청을 찾을 수 없습니다."));
-
-        relation.softDelete();
     }
 }

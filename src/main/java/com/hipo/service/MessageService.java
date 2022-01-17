@@ -41,15 +41,15 @@ public class MessageService {
         return messageRepository.save(new Message(message, messageType, account, chatRoom));
     }
 
-    public Iterable<MessageDto> findChatRoomMessage(Long chatRoomId, Pageable pageable, boolean all) {
+    public Iterable<MessageDto> findChatRoomMessage(Long loginAccountId, Long chatRoomId, Pageable pageable, boolean all) {
 
         if (all) {
-            return messageRepository.findAllChatRoomMessage(chatRoomId).stream()
+            return messageRepository.findAllChatRoomMessage(loginAccountId, chatRoomId).stream()
                     .map(MessageDto::new)
                     .collect(Collectors.toList());
         }
 
-        Slice<Message> chatRoomMessage = messageRepository.findChatRoomMessage(chatRoomId, pageable);
+        Slice<Message> chatRoomMessage = messageRepository.findChatRoomMessage(loginAccountId, chatRoomId, pageable);
         List<MessageDto> messageDtoList = chatRoomMessage.stream()
                 .map(MessageDto::new)
                 .collect(Collectors.toList());

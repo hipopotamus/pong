@@ -1,5 +1,6 @@
 package com.hipo.controller;
 
+import com.hipo.argumentresolver.LoginAccountId;
 import com.hipo.dataobjcet.dto.Result;
 import com.hipo.service.MessageService;
 import io.swagger.annotations.Api;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api(tags = {"6. Message"})
 @RestController
@@ -26,12 +28,13 @@ public class MessageController {
             @ApiImplicitParam(name = "page", value = "페이지 번호", dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "size", value = "페이지 사이즈", dataType = "int", paramType = "query")})
     @GetMapping("/message/{chatRoomId}")
-    public Object findChatRoomMessage(@PathVariable("chatRoomId") Long chatRoomId, Pageable pageable,
-                                                            @RequestParam(value = "paged", required = false) boolean all) {
+    public Object findChatRoomMessage(@ApiIgnore @LoginAccountId Long loginAccountId,
+                                      @PathVariable("chatRoomId") Long chatRoomId, Pageable pageable,
+                                      @RequestParam(value = "paged", required = false) boolean all) {
         if (all) {
-            return new Result<>(messageService.findChatRoomMessage(chatRoomId, pageable, all));
+            return new Result<>(messageService.findChatRoomMessage(loginAccountId, chatRoomId, pageable, all));
         }
-        return messageService.findChatRoomMessage(chatRoomId, pageable, all);
+        return messageService.findChatRoomMessage(loginAccountId, chatRoomId, pageable, all);
     }
 
 }

@@ -41,7 +41,7 @@ public class RoomController {
     @GetMapping("/room/{roomId}")
     public String getRoom(@RequestParam Long loginAccountId, @PathVariable("roomId") Long roomId, Model model){
 
-        model.addAttribute("messages", messageService.findChatRoomMessage(roomId,
+        model.addAttribute("messages", messageService.findChatRoomMessage(loginAccountId, roomId,
                 PageRequest.of(0, 10), false));
         model.addAttribute("room", chatRoomRepository.findById(roomId).orElse(null));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));

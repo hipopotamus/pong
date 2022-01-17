@@ -41,6 +41,13 @@ public class RelationController {
         return new ResultMessage("success reject friend request");
     }
 
+    @ApiOperation(value = "회원 차단", notes = "회원 정보를 받아 해당 회원을 차단 합니다.")
+    @PostMapping("/relation/block/{accountId}")
+    public ResultMessage block(@ApiIgnore @LoginAccountId Long loginAccountId, @PathVariable Long accountId) {
+        relationService.block(loginAccountId, accountId);
+        return new ResultMessage("success block Account");
+    }
+
     @ApiOperation(value = "친구 요청중 목록 조회", notes = "page와 size를 받으면 Page로 친구 요청중 목록을 조회합니다.\n" +
             "parameter를 입력하지 않으면 전체 친구 요청중 목록이 조회됩니다.")
     @ApiImplicitParams({
@@ -75,11 +82,25 @@ public class RelationController {
             @ApiImplicitParam(name = "page", value = "페이지 번호", dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "size", value = "페이지 사이즈", dataType = "int", paramType = "query")})
     @GetMapping("/relation/friends")
-    public Object findFriend(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
+    public Object findFriends(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
                                        @RequestParam(value = "all", required = false) boolean all) {
         if (all) {
             return new Result<>(relationService.findFriends(loginAccountId, pageable, all));
         }
         return relationService.findFriends(loginAccountId, pageable, all);
+    }
+
+    @ApiOperation(value = "차단 목록 조회", notes = "page와 size를 받으면 Page로 차단 목록을 조회합니다.\n" +
+            "parameter를 입력하지 않으면 전체 차단 목록이 조회됩니다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "페이지 번호", dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "페이지 사이즈", dataType = "int", paramType = "query")})
+    @GetMapping("/relation/blocks")
+    public Object findBlockAccounts(@ApiIgnore @LoginAccountId Long loginAccountId, @ApiIgnore Pageable pageable,
+                             @RequestParam(value = "all", required = false) boolean all) {
+        if (all) {
+            return new Result<>(relationService.findBlockAccounts(loginAccountId, pageable, all));
+        }
+        return relationService.findBlockAccounts(loginAccountId, pageable, all);
     }
 }
