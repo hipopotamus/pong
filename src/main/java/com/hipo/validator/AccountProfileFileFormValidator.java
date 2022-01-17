@@ -1,12 +1,17 @@
 package com.hipo.validator;
 
 import com.hipo.dataobjcet.form.AccountProfileFileForm;
+import com.hipo.domain.processor.FileProcessor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
+@RequiredArgsConstructor
 public class AccountProfileFileFormValidator implements Validator {
+
+    private final FileProcessor fileProcessor;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -20,12 +25,9 @@ public class AccountProfileFileFormValidator implements Validator {
         String originalFilename = accountProfileFileForm.getProfileFile().getOriginalFilename();
 
         if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
-            errors.rejectValue("profileFile", "BlankFileName", "파일 이름이 공백이거나 비어있습니다.");
-        } else if (!originalFilename.contains(".")) {
-            errors.rejectValue("profileFile", "NonExtractFileName", "확장자가 없습니다.");
-        } else if (originalFilename.equals(".")) {
-            errors.rejectValue("profileFile", "OnlyDotFileName", "잘못된 형식의 파일이름입니다.");
+            errors.rejectValue("profileFile", "BlankFileName");
+        } else if (!originalFilename.contains(".") || fileProcessor.extracted(originalFilename).equals(".")) {
+            errors.rejectValue("profileFile", "NonExtractFileName");
         }
-
     }
 }

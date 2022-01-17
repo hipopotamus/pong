@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
@@ -13,8 +13,8 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class AccountNicknameForm {
 
-    @NotEmpty
+    @NotBlank
     @Length(max = 30)
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{1,30}$")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{0,9999}$")
     private String nickname;
 }

@@ -29,7 +29,7 @@ public class FileProcessor {
         return uuid + ext;
     }
 
-    private String extracted(String originalFilename) {
+    public String extracted(String originalFilename) {
         int pos = originalFilename.lastIndexOf(".");
         return originalFilename.substring(pos);
     }

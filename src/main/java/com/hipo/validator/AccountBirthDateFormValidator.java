@@ -23,7 +23,7 @@ public class AccountBirthDateFormValidator implements Validator {
         LocalDate birtDate = accountBirthDateForm.getBirthDate();
 
         if (birtDate != null && (birtDate.isAfter(LocalDate.now()) || birtDate.isEqual(LocalDate.now()))) {
-            errors.rejectValue("birthDate", "FutureBirthDate", "생년월일이 당일과 같거나 빠를 수 없습니다.");
+            errors.rejectValue("birthDate", "FutureBirthDate");
         }
     }
 }

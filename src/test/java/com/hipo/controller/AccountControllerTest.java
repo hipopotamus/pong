@@ -7,6 +7,7 @@ import com.hipo.dataobjcet.dto.FormErrorResult;
 import com.hipo.dataobjcet.form.AccountBirthDateForm;
 import com.hipo.dataobjcet.form.AccountGenderForm;
 import com.hipo.dataobjcet.form.AccountNicknameForm;
+import com.hipo.domain.UserAccount;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
@@ -77,6 +78,7 @@ class AccountControllerTest {
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
+        //** Account 생성
         mockMvc.perform(multipart("/account").file(file)
                         .params(params))
                 .andExpect(status().isOk())
@@ -94,74 +96,573 @@ class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("Account 생성 실패_잘못된 formData")
-    public void createAccount_WrongForm_Test() throws Exception {
+    @DisplayName("Account 생성 실패_email 형식이 아닌 username")
+    public void createAccount_illegalEmailUsername_Test() throws Exception {
 
         //given
-        String username = "test@test.com"; //** 중복된 username
-        String password = "123"; //** 최소 길이보다 짧은 password
-        String nickname = "testNickname"; //** 중복된 nickname
-        String gender = "MAN";
-        String birthDate = "1000-021-01"; //** 잘못된 패턴인 birthDate;
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("username", username);
-        params.add("password", password);
-        params.add("nickname", nickname);
-        params.add("gender", gender);
-        params.add("birthDate", birthDate);
 
-        String fileName = "  "; //** 비어있는 fileName;
-        MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
+        //** email 형식이 아닌 username
+        params.add("username", "test");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
-        MvcResult IllegalFormResult = mockMvc.perform(multipart("/account").file(file)
+        //** email 형식이 아닌 username으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
                         .params(params))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        FormErrorResult formErrorResult = objectMapper.readValue(
-                IllegalFormResult.getResponse().getContentAsString(), FormErrorResult.class);
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto emailError = formErrorResult.getErrorList().get(0);
 
         //then
         assertThat(formErrorResult.getState()).isEqualTo("400");
         assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
-        //** usernameDuplication Error code, field 확인
-        ErrorDto usernameDuplicationErrorDto = formErrorResult.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("usernameDuplication"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("usernameDuplication을 갖는 error가 없습니다."));
-        assertThat(usernameDuplicationErrorDto.getField()).isEqualTo("username");
+        //** Email Error field, code 확인
+        assertThat(emailError.getField()).isEqualTo("username");
+        assertThat(emailError.getCode()).isEqualTo("Email");
+        assertThat(emailError.getMessage()).isEqualTo("이메일 형식이 아닙니다.");
+    }
 
-        //** nicknameDuplication Error code, field 확인
-        ErrorDto nicknameDuplicationErrorDto = formErrorResult.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("nicknameDuplication"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("nicknameDuplication을 갖는 error가 없습니다."));
-        assertThat(nicknameDuplicationErrorDto.getField()).isEqualTo("nickname");
+    @Test
+    @DisplayName("Account 생성 실패_빈 username")
+    public void createAccount_blankUsername_Test() throws Exception {
 
-        //** password Length Error code, field 확인
-        ErrorDto lengthErrorDto = formErrorResult.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("Length"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Length을 갖는 error가 없습니다."));
-        assertThat(lengthErrorDto.getField()).isEqualTo("password");
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-        //** BlankFileName Error code, field 확인
-        ErrorDto blankFileNameErrorDto = formErrorResult.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("BlankFileName"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("BlankFileName을 갖는 error가 없습니다."));
-        assertThat(blankFileNameErrorDto.getField()).isEqualTo("profileFile");
+        //** 빈 username
+        params.add("username", "");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
 
-        //** IllegalBirthDate Error code, field 확인
-        ErrorDto typeMismatchErrorDto = formErrorResult.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("typeMismatch"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("typeMismatch를 갖는 error가 없습니다."));
-        assertThat(typeMismatchErrorDto.getField()).isEqualTo("birthDate");
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 빈 username으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notBlankError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotBlank Error field, code 확인
+        assertThat(notBlankError.getField()).isEqualTo("username");
+        assertThat(notBlankError.getCode()).isEqualTo("NotBlank");
+        assertThat(notBlankError.getMessage()).isEqualTo("아이디가 비어있습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_중복된 username")
+    public void createAccount_duplicationUsername_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        //** 중복된 username
+        params.add("username", "test@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 중복된 username으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto usernameDuplicationError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** usernameDuplication Error field, code 확인
+        assertThat(usernameDuplicationError.getField()).isEqualTo("username");
+        assertThat(usernameDuplicationError.getCode()).isEqualTo("UsernameDuplication");
+        assertThat(usernameDuplicationError.getMessage()).isEqualTo("이미 사용중인 아이디입니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_빈 password")
+    public void createAccount_blankPassword_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        //** 빈 password
+        params.add("password", "      ");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 빈 password로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notBlankError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotBlank Error field, code 확인
+        assertThat(notBlankError.getField()).isEqualTo("password");
+        assertThat(notBlankError.getCode()).isEqualTo("NotBlank");
+        assertThat(notBlankError.getMessage()).isEqualTo("비밀번호가 비어있습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_잘못된 길이의 password")
+    public void createAccount_illegalLengthPassword_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        //** 잘못된 길이의 password(4자리 미만)
+        params.add("password", "1");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 잘못된 길이의 password(4자리 미만)로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto lengthError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** Length Error field, code 확인
+        assertThat(lengthError.getField()).isEqualTo("password");
+        assertThat(lengthError.getCode()).isEqualTo("Length");
+        assertThat(lengthError.getMessage()).isEqualTo("비밀번호는 4자리 이상 30자리 이하이여야 합니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_빈 nickname")
+    public void createAccount_blankNickname_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        //** 빈 nickname
+        params.add("nickname", "");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** //** 빈 nickname으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notBlankError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotBlank Error field, code 확인
+        assertThat(notBlankError.getField()).isEqualTo("nickname");
+        assertThat(notBlankError.getCode()).isEqualTo("NotBlank");
+        assertThat(notBlankError.getMessage()).isEqualTo("닉네임이 비어있습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_잘못된 길이의 nickname")
+    public void createAccount_illegalLengthNickname_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        //** 잘못된 길이의 nickname(30자리 이상)
+        params.add("nickname", "01234567890123456789012345678901234567890123456789012345678901234567890123456789");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 잘못된 길이의 nickname(30자리 이상)으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto lengthError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** Length Error field, code 확인
+        assertThat(lengthError.getField()).isEqualTo("nickname");
+        assertThat(lengthError.getCode()).isEqualTo("Length");
+        assertThat(lengthError.getMessage()).isEqualTo("닉네임은 1자리 이상 30자리 이하이여야 합니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_잘못된 패턴의 nickname")
+    public void createAccount_illegalPatternNickname_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        //** 잘못된 패턴의 nickname
+        params.add("nickname", "!@ ");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 잘못된 패턴의 nickname으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto patternError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** Pattern Error field, code 확인
+        assertThat(patternError.getField()).isEqualTo("nickname");
+        assertThat(patternError.getCode()).isEqualTo("Pattern");
+        assertThat(patternError.getMessage()).isEqualTo("닉네임에 특수문자나 공백을 기입할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_중복된 nickname")
+    public void createAccount_duplicationNickname_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        //** 중복된 nickname
+        params.add("nickname", "testNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 중복된 nickname으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto nicknameDuplicationError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NicknameDuplication Error field, code 확인
+        assertThat(nicknameDuplicationError.getField()).isEqualTo("nickname");
+        assertThat(nicknameDuplicationError.getCode()).isEqualTo("NicknameDuplication");
+        assertThat(nicknameDuplicationError.getMessage()).isEqualTo("이미 사용중인 닉네임입니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_빈 profileFileName")
+    public void createAccount_blankFileName_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        //** 빈 profileFileName
+        MockMultipartFile file = new MockMultipartFile("profileFile", "  ", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 빈 profileFileName으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto BlankFileNameError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** BlankFileName Error field, code 확인
+        assertThat(BlankFileNameError.getField()).isEqualTo("profileFile");
+        assertThat(BlankFileNameError.getCode()).isEqualTo("BlankFileName");
+        assertThat(BlankFileNameError.getMessage()).isEqualTo("파일 이름이 공백이거나 비어있습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_확장자가 없는 profileFileName")
+    public void createAccount_NonExtractFileName_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        params.add("birthDate", "1890-01-01");
+
+        //** 확장자가 없는 profileFileName
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 확장자가 없는 profileFileName으로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto BlankFileNameError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NonExtractFileName Error field, code 확인
+        assertThat(BlankFileNameError.getField()).isEqualTo("profileFile");
+        assertThat(BlankFileNameError.getCode()).isEqualTo("NonExtractFileName");
+        assertThat(BlankFileNameError.getMessage()).isEqualTo("확장자가 없습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_null값의 gender")
+    public void createAccount_nullGender_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        //** null값인 gender
+        params.add("gender", null);
+        params.add("birthDate", "1890-01-01");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** null값인 gender로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notNullError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotNull Error field, code 확인
+        assertThat(notNullError.getField()).isEqualTo("gender");
+        assertThat(notNullError.getCode()).isEqualTo("NotNull");
+        assertThat(notNullError.getMessage()).isEqualTo("null값이 들어갈 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_null값의 birthDate")
+    public void createAccount_nullBirthDate_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        //** null값인 birthDate
+        params.add("birthDate", null);
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** null값인 birthDate로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notNullError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotNull Error field, code 확인
+        assertThat(notNullError.getField()).isEqualTo("birthDate");
+        assertThat(notNullError.getCode()).isEqualTo("NotNull");
+        assertThat(notNullError.getMessage()).isEqualTo("null값이 들어갈 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_잘못된 형식의 birthDate")
+    public void createAccount_illegalPatternBirthDate_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        //** 잘못된 형식의 birthDate
+        params.add("birthDate", "1993-111-22");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 잘못된 형식의 birthDate로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto typeMismatchError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** typeMismatch Error field, code 확인
+        assertThat(typeMismatchError.getField()).isEqualTo("birthDate");
+        assertThat(typeMismatchError.getCode()).isEqualTo("typeMismatch");
+        assertThat(typeMismatchError.getMessage()).isEqualTo("생년월일은 'yyyy-MM-dd'과 같은 형식 이여야 합니다.");
+    }
+
+    @Test
+    @DisplayName("Account 생성 실패_현재보다 느린 birthDate")
+    public void createAccount_futureBirthDate_Test() throws Exception {
+
+        //given
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("username", "createTest@test.com");
+        params.add("password", "1234");
+        params.add("nickname", "createTestNickname");
+        params.add("gender", "MAN");
+        //** 현재보다 느린 birthDate
+        params.add("birthDate", "3993-12-22");
+
+        MockMultipartFile file = new MockMultipartFile("profileFile", "testFilename.jpeg", "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 현재보다 느린 birthDate로 Account 생성
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account").file(file)
+                        .params(params))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto futureBirthDateError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** FutureBirthDate Error field, code 확인
+        assertThat(futureBirthDateError.getField()).isEqualTo("birthDate");
+        assertThat(futureBirthDateError.getCode()).isEqualTo("FutureBirthDate");
+        assertThat(futureBirthDateError.getMessage()).isEqualTo("생년월일이 당일과 같거나 늦을 수 없습니다.");
     }
 
     @Test
@@ -169,87 +670,171 @@ class AccountControllerTest {
     public void updateAccountNicknameTest() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
         String nickname = "updateNickname";
 
         AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
 
         //when
-        MvcResult mvcResult = mockMvc.perform(post("/account/nickname")
+        mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", jwtToken)
                         .content(objectMapper.writeValueAsString(accountNicknameForm)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Account account = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+                .andExpect(status().isOk());
 
         //then
         assertThat(account.getNickname()).isEqualTo(nickname);
     }
 
     @Test
-    @DisplayName("닉네임 수정 실패_잘못된 formData")
-    public void updateAccountNickname_IllegalFormData_Test() throws Exception {
+    @DisplayName("닉네임 수정 실패_빈 nickname")
+    public void updateNickname_blankNickname_Test() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
-        String lengthNickname = "updateNicknameupdateNicknameupdateNicknameupdateNicknameupdateNickname"; //** 최대 길이(30자 이상)보다 긴 nickname
-        String patternNickname = ".!?"; //** 잘못된 형식의 nickname
-        String nicknameDuplicationNickname = "testNickname"; //** 중복된 nickname
+        //** 빈 nickname
+        String nickname = "";
 
-        AccountNicknameForm lengthNicknameForm = new AccountNicknameForm(lengthNickname);
-        AccountNicknameForm patternNicknameForm = new AccountNicknameForm(patternNickname);
-        AccountNicknameForm nicknameDuplicationNicknameForm = new AccountNicknameForm(nicknameDuplicationNickname);
+        AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
 
         //when
-        MvcResult lengthResult = mockMvc.perform(post("/account/nickname")
+        //** 빈 nickname으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", jwtToken)
-                        .content(objectMapper.writeValueAsString(lengthNicknameForm)))
-                .andReturn();
-        MvcResult patternResult = mockMvc.perform(post("/account/nickname")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", jwtToken)
-                        .content(objectMapper.writeValueAsString(patternNicknameForm)))
-                .andReturn();
-        MvcResult nicknameDuplicationResult = mockMvc.perform(post("/account/nickname")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", jwtToken)
-                        .content(objectMapper.writeValueAsString(nicknameDuplicationNicknameForm)))
+                        .content(objectMapper.writeValueAsString(accountNicknameForm)))
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        FormErrorResult lengthError = objectMapper.readValue(
-                lengthResult.getResponse().getContentAsString(), FormErrorResult.class);
-        FormErrorResult patternError = objectMapper.readValue(
-                patternResult.getResponse().getContentAsString(), FormErrorResult.class);
-        FormErrorResult nicknameDuplicationError = objectMapper.readValue(
-                nicknameDuplicationResult.getResponse().getContentAsString(), FormErrorResult.class);
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notBlankError = formErrorResult.getErrorList().get(0);
 
         //then
-        //** Length Error code, field 확인
-        ErrorDto lengthErrorDto = lengthError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("Length"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Length을 갖는 error를 찾을 수 없습니다."));
-        assertThat(lengthErrorDto.getField()).isEqualTo("nickname");
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
-        //** Pattern Error code, field 확인
-        ErrorDto patternErrorDto = patternError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("Pattern"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Pattern을 갖는 error를 찾을 수 없습니다."));
-        assertThat(patternErrorDto.getField()).isEqualTo("nickname");
+        //** NotBlank Error field, code 확인
+        assertThat(notBlankError.getField()).isEqualTo("nickname");
+        assertThat(notBlankError.getCode()).isEqualTo("NotBlank");
+        assertThat(notBlankError.getMessage()).isEqualTo("닉네임이 비어있습니다.");
+    }
 
-        //** nicknameDuplication Error code, field 확인
-        ErrorDto nicknameDuplicationErrorDto = nicknameDuplicationError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("nicknameDuplication"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("nicknameDuplication을 갖는 error를 찾을 수 없습니다."));
-        assertThat(nicknameDuplicationErrorDto.getField()).isEqualTo("nickname");
+    @Test
+    @DisplayName("닉네임 수정 실패_잘못된 길이의 nickname")
+    public void updateNickname_illegalLengthNickname_Test() throws Exception {
+
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 잘못된 길이의 nickname(30자리 이상)
+        String nickname = "01234567890123456789012345678901234567890123456789012345678901234567890123456789";
+
+        AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
+
+        //when
+        //** 잘못된 길이의 nickname(30자리 이상)으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/nickname")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
+                        .content(objectMapper.writeValueAsString(accountNicknameForm)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto lengthError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** Length Error field, code 확인
+        assertThat(lengthError.getField()).isEqualTo("nickname");
+        assertThat(lengthError.getCode()).isEqualTo("Length");
+        assertThat(lengthError.getMessage()).isEqualTo("닉네임은 1자리 이상 30자리 이하이여야 합니다.");
+    }
+
+    @Test
+    @DisplayName("닉네임 수정 실패_잘못된 패턴의 nickname")
+    public void updateNickname_illegalPatternNickname_Test() throws Exception {
+
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 잘못된 패턴의 nickname
+        String nickname = "! #";
+
+        AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
+
+        //when
+        //** 잘못된 패턴의 nickname으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/nickname")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
+                        .content(objectMapper.writeValueAsString(accountNicknameForm)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto patternError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** Pattern Error field, code 확인
+        assertThat(patternError.getField()).isEqualTo("nickname");
+        assertThat(patternError.getCode()).isEqualTo("Pattern");
+        assertThat(patternError.getMessage()).isEqualTo("닉네임에 특수문자나 공백을 기입할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("닉네임 수정 실패_중복된 nickname")
+    public void updateNickname_duplicationNickname_Test() throws Exception {
+
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 중복된 nickname
+        String nickname = "testNickname";
+
+        AccountNicknameForm accountNicknameForm = new AccountNicknameForm(nickname);
+
+        //when
+        //** 중복된 nickname으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/nickname")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", jwtToken)
+                        .content(objectMapper.writeValueAsString(accountNicknameForm)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto nicknameDuplicationError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NicknameDuplication Error field, code 확인
+        assertThat(nicknameDuplicationError.getField()).isEqualTo("nickname");
+        assertThat(nicknameDuplicationError.getCode()).isEqualTo("NicknameDuplication");
+        assertThat(nicknameDuplicationError.getMessage()).isEqualTo("이미 사용중인 닉네임입니다.");
     }
 
     @Test
@@ -257,92 +842,93 @@ class AccountControllerTest {
     public void updateProfileImgTest() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
         String fileName = "updateProfileImg.jpeg";
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
+        String beforeProfileImgPath = account.getProfileImgPath();
+
         //when
-        String beforeUpdateProfileImgPath = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
-                .getProfileImgPath();
-
-        MvcResult mvcResult = mockMvc.perform(multipart("/account/profileImg").file(file)
+        mockMvc.perform(multipart("/account/profileImg").file(file)
                         .header("Authorization", jwtToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String profileImgPath = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
-                .getProfileImgPath();
+                .andExpect(status().isOk());
 
         //then
-        assertThat(profileImgPath).isNotEqualTo(beforeUpdateProfileImgPath);
+        assertThat(account.getProfileImgPath()).isNotEqualTo(beforeProfileImgPath);
     }
 
     @Test
-    @DisplayName("프로필 이미지 수정 실패_잘못된 formData")
-    public void updateProfileImg_IllegalFromData_Test() throws Exception {
+    @DisplayName("프로필 이미지 수정 실패_빈 profileFileName")
+    public void updateProfileImg_blankFileName_Test() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
-        String blankFileName = null; //** null인 filename
-        MockMultipartFile blankFile = new MockMultipartFile("profileFile", blankFileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
-
-        String nonExtractFileName = "updateProfileImgjpeg"; //** 확장자가 없는 filename
-        MockMultipartFile nonExtractFile = new MockMultipartFile("profileFile", nonExtractFileName, "image/jpeg",
-                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
-
-        String onlyDotFileName = "."; //** 잘못된 형식의 filename
-        MockMultipartFile onlyDotFile = new MockMultipartFile("profileFile", onlyDotFileName, "image/jpeg",
+        //** 빈 profileFileName
+        String fileName = "  ";
+        MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
         //when
-        MvcResult blankResult = mockMvc.perform(multipart("/account/profileImg").file(blankFile)
-                        .header("Authorization", jwtToken))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
-        MvcResult nonExtractResult = mockMvc.perform(multipart("/account/profileImg").file(nonExtractFile)
-                        .header("Authorization", jwtToken))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
-        MvcResult onlyDotResult = mockMvc.perform(multipart("/account/profileImg").file(onlyDotFile)
+        //** 빈 profileFileName으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account/profileImg").file(file)
                         .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        FormErrorResult blankError = objectMapper.readValue(blankResult.getResponse().getContentAsString(),
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
                 FormErrorResult.class);
-        FormErrorResult nonExtractError = objectMapper.readValue(nonExtractResult.getResponse().getContentAsString(),
-                FormErrorResult.class);
-        FormErrorResult onlyDotError = objectMapper.readValue(onlyDotResult.getResponse().getContentAsString(),
-                FormErrorResult.class);
+        ErrorDto BlankFileNameError = formErrorResult.getErrorList().get(0);
 
         //then
-        //** BlankFileName Error code, field 확인
-        ErrorDto blankErrorDto = blankError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("BlankFileName"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("BlankFileName을 갖는 error를 찾을 수 없습니다."));
-        assertThat(blankErrorDto.getField()).isEqualTo("profileFile");
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
-        //** NonExtract Error code, field 확인
-        ErrorDto nonExtractErrorDto = nonExtractError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("NonExtractFileName"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("NonExtractFileName을 갖는 error를 찾을 수 없습니다."));
-        assertThat(nonExtractErrorDto.getField()).isEqualTo("profileFile");
+        //** BlankFileName Error field, code 확인
+        assertThat(BlankFileNameError.getField()).isEqualTo("profileFile");
+        assertThat(BlankFileNameError.getCode()).isEqualTo("BlankFileName");
+        assertThat(BlankFileNameError.getMessage()).isEqualTo("파일 이름이 공백이거나 비어있습니다.");
+    }
 
-        //** OnlyDot Error code, field 확인
-        ErrorDto onlyDotErrorDto = onlyDotError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("OnlyDotFileName"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("OnlyDotFileName을 갖는 error를 찾을 수 없습니다."));
-        assertThat(onlyDotErrorDto.getField()).isEqualTo("profileFile");
+    @Test
+    @DisplayName("프로필 이미지 수정 실패_확장자가 없는 profileFileName")
+    public void updateProfileImg_NonExtractFileName_Test() throws Exception {
 
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 확장자가 없는 profileFileName
+        String fileName = "test";
+        MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
+
+        //when
+        //** 확장자가 없는 profileFileName으로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(multipart("/account/profileImg").file(file)
+                        .header("Authorization", jwtToken))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto BlankFileNameError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NonExtractFileName Error field, code 확인
+        assertThat(BlankFileNameError.getField()).isEqualTo("profileFile");
+        assertThat(BlankFileNameError.getCode()).isEqualTo("NonExtractFileName");
+        assertThat(BlankFileNameError.getMessage()).isEqualTo("확장자가 없습니다.");
     }
 
     @Test
@@ -350,88 +936,126 @@ class AccountControllerTest {
     public void updateBrithDateTest() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
         LocalDate birthDate = LocalDate.of(1000, 10, 10);
 
         AccountBirthDateForm accountBirthDateForm = new AccountBirthDateForm(birthDate);
 
         //when
-        MvcResult mvcResult = mockMvc.perform(post("/account/birthDate")
+        mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountBirthDateForm))
                         .header("Authorization", jwtToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Account account = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+                .andExpect(status().isOk());
 
         //then
         assertThat(account.getBirthDate()).isEqualTo(birthDate);
     }
 
     @Test
-    @DisplayName("생년월일 수정 실패_잘못된 formData")
-    public void updateBrithDate_IllegalFormData_Test() throws Exception {
+    @DisplayName("생년월일 수정 실패_null값의 birthDate")
+    public void updateBirthDate_nullBirthDate_Test() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
-        String httpMessageNotReadableBirthDate = "{\"birthDate\":\"1000-1222-01\"}";
-        LocalDate notNullBirthDate = null;
-        LocalDate futureBirthDate = LocalDate.of(4000, 10, 10);
+        //** null값인 birthDate
+        LocalDate birthDate = null;
 
-        AccountBirthDateForm notNullBirthDateForm = new AccountBirthDateForm(notNullBirthDate);
-        AccountBirthDateForm futureBirthDateForm = new AccountBirthDateForm(futureBirthDate);
+        AccountBirthDateForm accountBirthDateForm = new AccountBirthDateForm(birthDate);
 
         //when
-        MvcResult httpMessageNotReadableResult = mockMvc.perform(post("/account/birthDate")
+        //** null값인 birthDate로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/birthDate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountBirthDateForm))
+                        .header("Authorization", jwtToken))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notNullError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** NotNull Error field, code 확인
+        assertThat(notNullError.getField()).isEqualTo("birthDate");
+        assertThat(notNullError.getCode()).isEqualTo("NotNull");
+        assertThat(notNullError.getMessage()).isEqualTo("null값이 들어갈 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("생년월일 수정 실패_잘못된 형식의 birthDate")
+    public void updateBirthDate_illegalPatternBirthDate_Test() throws Exception {
+
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 잘못된 형식의 birthDate
+        String httpMessageNotReadableBirthDate = "{\"birthDate\":\"1000-1222-01\"}";
+
+        //when
+        //** 잘못된 형식의 birthDate로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/birthDate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(httpMessageNotReadableBirthDate)
                         .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        MvcResult notNullResult = mockMvc.perform(post("/account/birthDate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(notNullBirthDateForm))
-                        .header("Authorization", jwtToken))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
-
-        MvcResult futureBirthDateResult = mockMvc.perform(post("/account/birthDate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(futureBirthDateForm))
-                        .header("Authorization", jwtToken))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
-
-        BasicErrorResult httpMessageNotReadableError = objectMapper.readValue(
-                httpMessageNotReadableResult.getResponse().getContentAsString(), BasicErrorResult.class);
-        FormErrorResult notNullError = objectMapper.readValue(
-                notNullResult.getResponse().getContentAsString(), FormErrorResult.class);
-        FormErrorResult futureBirthDateError = objectMapper.readValue(
-                futureBirthDateResult.getResponse().getContentAsString(), FormErrorResult.class);
+        BasicErrorResult basicErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                BasicErrorResult.class);
 
         //then
-        //** httpMessageNotReadableException 확인
-        assertThat(httpMessageNotReadableError.getException())
-                .isEqualTo(HttpMessageNotReadableException.class.getSimpleName());
+        assertThat(basicErrorResult.getState()).isEqualTo("400");
+        assertThat(basicErrorResult.getException()).isEqualTo(HttpMessageNotReadableException.class.getSimpleName());
+    }
 
-        //** NotNull error code, field 확인
-        ErrorDto notNullErrorDto = notNullError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("NotNull"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Notnull을 갖는 error를 찾을 수 없습니다."));
-        assertThat(notNullErrorDto.getField()).isEqualTo("birthDate");
+    @Test
+    @DisplayName("생년월일 수정 실패_현재보다 느린 birthDate")
+    public void updateBirthDate_futureBirthDate_Test() throws Exception {
 
-        //** futureBirthDate error code, field 확인
-        ErrorDto futureBirthDateErrorDto = futureBirthDateError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("FutureBirthDate"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("futureBirthDate를 갖는 error를 찾을 수 없습니다."));
-        assertThat(futureBirthDateErrorDto.getField()).isEqualTo("birthDate");
+        //given
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
+
+        //** 현재보다 느린 birthDate
+        LocalDate birthDate = LocalDate.of(4000, 10, 10);
+
+        AccountBirthDateForm accountBirthDateForm = new AccountBirthDateForm(birthDate);
+
+        //when
+        //** 현재보다 느린 birthDate로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/birthDate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountBirthDateForm))
+                        .header("Authorization", jwtToken))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto futureBirthDateError = formErrorResult.getErrorList().get(0);
+
+        //then
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+
+        //** FutureBirthDate Error field, code 확인
+        assertThat(futureBirthDateError.getField()).isEqualTo("birthDate");
+        assertThat(futureBirthDateError.getCode()).isEqualTo("FutureBirthDate");
+        assertThat(futureBirthDateError.getMessage()).isEqualTo("생년월일이 당일과 같거나 늦을 수 없습니다.");
     }
 
     @Test
@@ -439,72 +1063,59 @@ class AccountControllerTest {
     public void updateGenderTest() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
         Gender gender = Gender.FEMALE;
 
         AccountGenderForm accountGenderForm = new AccountGenderForm(gender);
 
         //when
-        Gender beforeGender = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
-                .getGender();
-
-        MvcResult mvcResult = mockMvc.perform(post("/account/gender")
+        mockMvc.perform(post("/account/gender")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountGenderForm))
                         .header("Authorization", jwtToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Gender afterGender = accountRepository.findByUsername("test@test.com")
-                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."))
-                .getGender();
+                .andExpect(status().isOk());
 
         //then
-        assertThat(afterGender).isNotEqualTo(beforeGender);
-        assertThat(afterGender).isEqualTo(gender);
+        assertThat(account.getGender()).isEqualTo(gender);
     }
 
     @Test
-    @DisplayName("성별 수정 실패_잘못된 formData")
-    public void updateGender_IllegalFormData_Test() throws Exception {
+    @DisplayName("성별 수정 실패_null값의 gender")
+    public void updateGender_nullGender_Test() throws Exception {
 
         //given
-        String jwtToken = authService.login("test@test.com", "1234");
+        Account account = accountRepository.findByUsername("test@test.com")
+                .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
+        String jwtToken = "Bearer " + jwtProcessor.createAuthJwtToken(new UserAccount(account));
 
-        AccountGenderForm notNullGenderForm = new AccountGenderForm(null);
-        String httpMessageNotReadableGender = "{\"gender\":\"M\"}";
+        //** null값인 gender
+        Gender gender = null;
+
+        AccountGenderForm accountGenderForm = new AccountGenderForm(gender);
 
         //when
-        MvcResult notNullResult = mockMvc.perform(post("/account/gender")
+        //** null값인 gender로 Account 수정
+        MvcResult illegalFormResult = mockMvc.perform(post("/account/gender")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(notNullGenderForm))
+                        .content(objectMapper.writeValueAsString(accountGenderForm))
                         .header("Authorization", jwtToken))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        MvcResult httpMessageNotReadableResult = mockMvc.perform(post("/account/gender")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(httpMessageNotReadableGender)
-                        .header("Authorization", jwtToken))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
-
-        FormErrorResult notNullError = objectMapper.readValue(
-                notNullResult.getResponse().getContentAsString(), FormErrorResult.class);
-
-        BasicErrorResult httpMessageNotReadableError = objectMapper.readValue(
-                httpMessageNotReadableResult.getResponse().getContentAsString(), BasicErrorResult.class);
+        FormErrorResult formErrorResult = objectMapper.readValue(illegalFormResult.getResponse().getContentAsString(),
+                FormErrorResult.class);
+        ErrorDto notNullError = formErrorResult.getErrorList().get(0);
 
         //then
-        //** NotNull Error code, field 확인
-        ErrorDto notNullErrorDto = notNullError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("NotNull"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("NotNull을 갖는 error를 찾을 수 없습니다."));
-        assertThat(notNullErrorDto.getField()).isEqualTo("gender");
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
-        assertThat(httpMessageNotReadableError.getException()).isEqualTo(HttpMessageNotReadableException.class.getSimpleName());
+        //** NotNull Error field, code 확인
+        assertThat(notNullError.getField()).isEqualTo("gender");
+        assertThat(notNullError.getCode()).isEqualTo("NotNull");
+        assertThat(notNullError.getMessage()).isEqualTo("null값이 들어갈 수 없습니다.");
     }
 }
