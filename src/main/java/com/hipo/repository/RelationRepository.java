@@ -55,7 +55,11 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
     @Query("select relations from Relation relations " +
             "join relations.fromAccount fromAccount " +
             "join relations.toAccount toAccount " +
-            "where toAccount.id = :accountId and relations.relationState = 'REQUEST'")
+            "where toAccount.id = :accountId and relations.relationState = 'REQUEST' " +
+            "and not toAccount in (select toAccount from Relation relation " +
+                "join relation.fromAccount fromAccount " +
+                "join relation.toAccount toAccount " +
+                "where fromAccount.id =:accountId and relation.relationState = 'BLOCK')")
     Page<Relation> findWaitingRequests(@Param("accountId") Long accountId, Pageable pageable);
 
     @Query("select relations from Relation relations " +

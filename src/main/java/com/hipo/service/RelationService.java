@@ -7,9 +7,12 @@ import com.hipo.domain.entity.enums.RelationState;
 import com.hipo.domain.processor.JudgeProcessor;
 import com.hipo.exception.DuplicationRequestException;
 import com.hipo.exception.NonExistResourceException;
+import com.hipo.listener.event.FriendAcceptEvent;
+import com.hipo.listener.event.FriendRequestEvent;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.RelationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ public class RelationService {
     private final AccountRepository accountRepository;
     private final RelationRepository relationRepository;
     private final JudgeProcessor judgeProcessor;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Relation requestFriend(Long fromAccountId, Long toAccountId) {
@@ -48,6 +52,9 @@ public class RelationService {
                 .toAccount(toAccount)
                 .relationState(RelationState.REQUEST)
                 .build();
+
+        eventPublisher.publishEvent(new FriendRequestEvent(request));
+
         return relationRepository.save(request);
     }
 
@@ -61,6 +68,8 @@ public class RelationService {
         Relation relation = relationRepository
                 .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
                 .orElseThrow(() -> new NonExistResourceException("해당 친구 요청을 찾을 수 없습니다."));
+
+        eventPublisher.publishEvent(new FriendRequestEvent(relation));
 
         relation.softDelete();
     }
@@ -86,6 +95,9 @@ public class RelationService {
                 .toAccount(requestAccount)
                 .relationState(RelationState.FRIEND)
                 .build();
+
+        eventPublisher.publishEvent(new FriendAcceptEvent(friend));
+
         return relationRepository.save(friend);
     }
 
