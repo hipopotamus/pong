@@ -1,10 +1,12 @@
 package com.hipo.service;
 
+import com.hipo.dataobjcet.dto.IdDto;
 import com.hipo.dataobjcet.dto.NotificationDto;
 import com.hipo.dataobjcet.dto.NotificationSearchCond;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
+import com.hipo.exception.AuthException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.NotificationRepository;
@@ -48,5 +50,20 @@ public class NotificationService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(notificationDtoList, pageable, notifications.getTotal());
+    }
+
+    @Transactional
+    public void check(Long accountId, List<IdDto> notificationIdList) {
+
+        for (IdDto notificationId : notificationIdList) {
+            Notification notification = notificationRepository.findNotificationWithAccount(notificationId.getId())
+                    .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Notification을 찾을 수 없습니다."));
+
+            if (!notification.getAccount().getId().equals(accountId)) {
+                throw new AuthException("내 알람이 아닙니다.");
+            }
+
+            notification.check();
+        }
     }
 }
