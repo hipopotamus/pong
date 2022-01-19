@@ -60,8 +60,7 @@ class AuthControllerTest {
     public void loginTest() throws Exception {
 
         //given
-        String username = "test@test.com";
-        LoginForm loginForm = new LoginForm(username, "1234");
+        LoginForm loginForm = new LoginForm("test@test.com", "1234");
 
         //when
         MvcResult mvcResult = mockMvc.perform(post("/myLogin")
@@ -75,7 +74,7 @@ class AuthControllerTest {
         String decodeUsername = jwtProcessor.decodeJwtToken(jwtToken, JwtProperties.SECRET, "username");
 
         //then
-        assertThat(decodeUsername).isEqualTo(username);
+        assertThat(decodeUsername).isEqualTo("test@test.com");
     }
 
     @Test
@@ -83,28 +82,28 @@ class AuthControllerTest {
     public void login_wrongPassword_Test() throws Exception {
 
         //given
-        LoginForm wrongPasswordLoginForm = new LoginForm("test@test.com", "12345"); //** 잘못된 패스워드
+        //** 잘못된 패스워드
+        LoginForm wrongPasswordLoginForm = new LoginForm("test@test.com", "12345");
 
         //when
-        MvcResult wrongPasswordResult = mockMvc.perform(post("/myLogin")
+        MvcResult illegalFromResult = mockMvc.perform(post("/myLogin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrongPasswordLoginForm)))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        FormErrorResult wrongPasswordError = objectMapper.readValue(
-                wrongPasswordResult.getResponse().getContentAsString(), FormErrorResult.class);
+        FormErrorResult formErrorResult = objectMapper.readValue(
+                illegalFromResult.getResponse().getContentAsString(), FormErrorResult.class);
+        ErrorDto wrongPasswordError = formErrorResult.getErrorList().get(0);
 
         //then
-        assertThat(wrongPasswordError.getState()).isEqualTo("400");
-        assertThat(wrongPasswordError.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
+        assertThat(formErrorResult.getState()).isEqualTo("400");
+        assertThat(formErrorResult.getException()).isEqualTo(IllegalFormException.class.getSimpleName());
 
         //** WrongPassword error code, field 확인
-        ErrorDto wrongPasswordErrorDto = wrongPasswordError.getErrorList().stream()
-                .filter(errorDto -> errorDto.getCode().equals("WrongPassword"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("WrongPassword를 갖는 error가 없습니다."));
-        assertThat(wrongPasswordErrorDto.getField()).isEqualTo("password");
+        assertThat(wrongPasswordError.getField()).isEqualTo("password");
+        assertThat(wrongPasswordError.getCode()).isEqualTo("WrongPassword");
+        assertThat(wrongPasswordError.getMessage()).isEqualTo("비밀번호가 맞지 않습니다.");
 
     }
 
@@ -113,7 +112,8 @@ class AuthControllerTest {
     public void login_wrongUsername_Test() throws Exception {
 
         //given
-        LoginForm nonExistResourceLoginForm = new LoginForm("wrongTest@test.com", "1234"); //** 잘못된 아이디
+        //** 잘못된 아이디
+        LoginForm nonExistResourceLoginForm = new LoginForm("wrongTest@test.com", "1234");
 
         //when
         MvcResult nonExistResourceResult = mockMvc.perform(post("/myLogin")
@@ -129,5 +129,4 @@ class AuthControllerTest {
         assertThat(nonExistResourceError.getState()).isEqualTo("400");
         assertThat(nonExistResourceError.getException()).isEqualTo(NonExistResourceException.class.getSimpleName());
     }
-
 }

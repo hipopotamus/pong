@@ -33,7 +33,7 @@ public class LoginFormValidator implements Validator {
 
         //** password
         if (!bCryptPasswordEncoder.matches(loginForm.getPassword(), account.getPassword())) {
-            errors.rejectValue("password", "WrongPassword", "비밀번호가 맞지 않습니다.");
+            errors.rejectValue("password", "WrongPassword");
         }
 
     }

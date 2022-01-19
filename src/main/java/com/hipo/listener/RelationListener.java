@@ -43,9 +43,9 @@ public class RelationListener {
     public void handleFriendAcceptEvent(FriendAcceptEvent friendAcceptEvent) {
         Account fromAccount = friendAcceptEvent.getRelation().getFromAccount();
         Account toAccount = friendAcceptEvent.getRelation().getToAccount();
-        String message = fromAccount.getNickname() + "님이 친구 요청을 수락 하였습니다.";
+        String message = toAccount.getNickname() + "님이 친구 요청을 수락 하였습니다.";
 
-        notificationService.createNotification(message, NotificationType.FRIEND_REJECT, toAccount.getId());
+        notificationService.createNotification(message, NotificationType.FRIEND_REJECT, fromAccount.getId());
     }
 
 }

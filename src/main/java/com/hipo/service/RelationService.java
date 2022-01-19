@@ -75,7 +75,7 @@ public class RelationService {
     }
 
     @Transactional
-    public Relation acceptFriend(Long acceptAccountId, Long requestAccountId) {
+    public void acceptFriend(Long acceptAccountId, Long requestAccountId) {
 
         Account acceptAccount = accountRepository.findById(acceptAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
@@ -90,15 +90,19 @@ public class RelationService {
 
         requestingRelation.acceptedRequest();
 
-        Relation friend = Relation.builder()
-                .fromAccount(acceptAccount)
-                .toAccount(requestAccount)
-                .relationState(RelationState.FRIEND)
-                .build();
+        eventPublisher.publishEvent(new FriendAcceptEvent(requestingRelation));
 
-        eventPublisher.publishEvent(new FriendAcceptEvent(friend));
+        boolean isFriend = relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(acceptAccount, requestAccount, RelationState.FRIEND);
 
-        return relationRepository.save(friend);
+        if (!isFriend) {
+            Relation friend = Relation.builder()
+                    .fromAccount(acceptAccount)
+                    .toAccount(requestAccount)
+                    .relationState(RelationState.FRIEND)
+                    .build();
+
+            relationRepository.save(friend);
+        }
     }
 
     @Transactional
