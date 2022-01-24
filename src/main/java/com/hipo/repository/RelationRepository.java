@@ -45,7 +45,7 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
             "join fetch relations.fromAccount fromAccount " +
             "join fetch relations.toAccount toAccount " +
             "where toAccount.id = :accountId and relations.relationState = 'REQUEST' " +
-            "and not toAccount in (select toAccount from Relation relation " +
+            "and not fromAccount in (select toAccount from Relation relation " +
                 "join relation.fromAccount fromAccount " +
                 "join relation.toAccount toAccount " +
                 "where fromAccount.id =:accountId and relation.relationState = 'BLOCK')")
@@ -56,7 +56,7 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
             "join relations.fromAccount fromAccount " +
             "join relations.toAccount toAccount " +
             "where toAccount.id = :accountId and relations.relationState = 'REQUEST' " +
-            "and not toAccount in (select toAccount from Relation relation " +
+            "and not fromAccount in (select toAccount from Relation relation " +
                 "join relation.fromAccount fromAccount " +
                 "join relation.toAccount toAccount " +
                 "where fromAccount.id =:accountId and relation.relationState = 'BLOCK')")

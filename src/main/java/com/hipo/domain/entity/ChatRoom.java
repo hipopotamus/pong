@@ -5,10 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -22,6 +21,13 @@ public class ChatRoom extends BaseBy {
     private Long id;
 
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "masterAccount_id")
+    private Account masterAccount;
+
+    @OneToMany(mappedBy = "chatRoom")
+    private List<AccountChatRoom> participants = new ArrayList<>();
 
     protected ChatRoom() {
     }

@@ -32,5 +32,6 @@ public class AccountChatRoom extends BaseTime {
     public AccountChatRoom(Account account, ChatRoom chatRoom) {
         this.account = account;
         this.chatRoom = chatRoom;
+        chatRoom.getParticipants().add(this);
     }
 }
