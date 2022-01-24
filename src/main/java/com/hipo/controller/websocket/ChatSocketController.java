@@ -6,15 +6,13 @@ import com.hipo.domain.entity.enums.MessageType;
 import com.hipo.service.AccountService;
 import com.hipo.service.MessageService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatSocketController {
 
     private final SimpMessagingTemplate template;
     private final MessageService messageService;

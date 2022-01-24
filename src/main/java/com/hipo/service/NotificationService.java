@@ -1,8 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.IdDto;
-import com.hipo.dataobjcet.dto.NotificationDto;
-import com.hipo.dataobjcet.dto.NotificationSearchCond;
+import com.hipo.dataobjcet.dto.*;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
@@ -14,6 +12,7 @@ import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +26,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
+    private final SimpMessagingTemplate template;
 
     @Transactional
-    public void createNotification(String message, NotificationType notificationType, Long accountId) {
+    public Notification createNotification(String message, NotificationType notificationType, Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
-        notificationRepository.save(new Notification(message, notificationType, account));
+        return notificationRepository.save(new Notification(message, notificationType, account));
     }
 
     public Iterable<NotificationDto> findNotifications(Long accountId, NotificationSearchCond notificationSearchCond,
@@ -65,5 +65,18 @@ public class NotificationService {
 
             notification.check();
         }
+    }
+
+    public void sendNotificationToSocket(Account account, Notification notification) {
+        int unChecked = notificationRepository
+                .findAllNotification(account.getId(), new NotificationSearchCond(null, false)).size();
+        int checked = notificationRepository
+                .findAllNotification(account.getId(), new NotificationSearchCond(null, true)).size();
+
+        NotificationDto notificationDto = new NotificationDto(notification);
+        NotificationCheckDto notificationCheckDto = new NotificationCheckDto(checked, unChecked);
+
+        template.convertAndSend("/sub/notification/" + account.getId(),
+                new NotificationSocketDto(notificationDto, notificationCheckDto));
     }
 }

@@ -1,6 +1,7 @@
 package com.hipo.listener;
 
 import com.hipo.domain.entity.Account;
+import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
 import com.hipo.listener.event.FriendAcceptEvent;
 import com.hipo.listener.event.FriendRejectEvent;
@@ -25,7 +26,8 @@ public class RelationListener {
         Account toAccount = friendRequestEvent.getRelation().getToAccount();
         String message = fromAccount.getNickname() + "님이 친구 요청을 하였습니다.";
 
-        notificationService.createNotification(message, NotificationType.FRIEND_REQUEST, toAccount.getId());
+        Notification notification = notificationService.createNotification(message, NotificationType.FRIEND_REQUEST, toAccount.getId());
+        notificationService.sendNotificationToSocket(toAccount, notification);
     }
 
     @Transactional
@@ -35,7 +37,8 @@ public class RelationListener {
         Account toAccount = friendRejectEvent.getRelation().getToAccount();
         String message = toAccount.getNickname() + "님이 친구 요청을 거절 하였습니다.";
 
-        notificationService.createNotification(message, NotificationType.FRIEND_ACCEPT, fromAccount.getId());
+        Notification notification = notificationService.createNotification(message, NotificationType.FRIEND_ACCEPT, fromAccount.getId());
+        notificationService.sendNotificationToSocket(fromAccount, notification);
     }
 
     @Transactional
@@ -45,7 +48,8 @@ public class RelationListener {
         Account toAccount = friendAcceptEvent.getRelation().getToAccount();
         String message = toAccount.getNickname() + "님이 친구 요청을 수락 하였습니다.";
 
-        notificationService.createNotification(message, NotificationType.FRIEND_REJECT, fromAccount.getId());
+        Notification notification = notificationService.createNotification(message, NotificationType.FRIEND_REJECT, fromAccount.getId());
+        notificationService.sendNotificationToSocket(fromAccount, notification);
     }
 
 }

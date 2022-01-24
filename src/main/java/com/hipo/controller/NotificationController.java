@@ -41,6 +41,7 @@ public class NotificationController {
         return notificationService.findNotifications(accountId, notificationSearchCond, pageable, all);
     }
 
+    @ApiOperation(value = "알람 체크", notes = "알람 id의 list를 받아 해당 알람들을 체크 상태로 만듭니다.")
     @PostMapping("/notification/check")
     public ResultMessage checked(@ApiIgnore @LoginAccountId Long accountId,
                                  @RequestBody NotificationIdListDto notificationIdListDto) {

@@ -17,6 +17,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,15 +45,18 @@ public class MessageService {
     public Iterable<MessageDto> findChatRoomMessage(Long loginAccountId, Long chatRoomId, Pageable pageable, boolean all) {
 
         if (all) {
-            return messageRepository.findAllChatRoomMessage(loginAccountId, chatRoomId).stream()
+            List<MessageDto> messageList = messageRepository.findAllChatRoomMessage(loginAccountId, chatRoomId).stream()
                     .map(MessageDto::new)
                     .collect(Collectors.toList());
+            Collections.reverse(messageList);
+            return messageList;
         }
 
         Slice<Message> chatRoomMessage = messageRepository.findChatRoomMessage(loginAccountId, chatRoomId, pageable);
         List<MessageDto> messageDtoList = chatRoomMessage.stream()
                 .map(MessageDto::new)
                 .collect(Collectors.toList());
+        Collections.reverse(messageDtoList);
 
         return new SliceImpl<>(messageDtoList, pageable, chatRoomMessage.hasNext());
     }

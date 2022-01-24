@@ -2,6 +2,7 @@ package com.hipo.listener;
 
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;
+import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
 import com.hipo.listener.event.InviteChatRoomEvent;
 import com.hipo.service.NotificationService;
@@ -25,6 +26,7 @@ public class AccountChatRoomListener {
         ChatRoom chatRoom = inviteChatRoomEvent.getChatRoom();
 
         String message = inviteAccount.getNickname() + "님이 " + "[" + chatRoom.getName() + "]" + "채팅방에 초대하였습니다.";
-        notificationService.createNotification(message, NotificationType.INVITE_CHATROOM, acceptAccount.getId());
+        Notification notification = notificationService.createNotification(message, NotificationType.INVITE_CHATROOM, acceptAccount.getId());
+        notificationService.sendNotificationToSocket(acceptAccount, notification);
     }
 }

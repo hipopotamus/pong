@@ -19,7 +19,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                 "join relation.fromAccount fromAccount " +
                 "join relation.toAccount toAccount " +
                 "where fromAccount.id =:accountId and relation.relationState = 'BLOCK') " +
-            "order by message.createDate")
+            "order by message.createDate desc")
     Slice<Message> findChatRoomMessage(@Param("accountId") Long accountId, @Param("chatRoomId") Long chatRoomId,
                                        Pageable pageable);
 
@@ -31,7 +31,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                 "join relation.fromAccount fromAccount " +
                 "join relation.toAccount toAccount " +
                 "where fromAccount.id =:accountId and relation.relationState = 'BLOCK') " +
-            "order by message.createDate")
+            "order by message.createDate desc")
     List<Message> findAllChatRoomMessage(@Param("accountId") Long accountId, @Param("chatRoomId") Long chatRoomId);
 
 }
