@@ -4,6 +4,7 @@ import com.hipo.dataobjcet.dto.ChatRoomDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.AccountChatRoom;
 import com.hipo.domain.entity.ChatRoom;
+import com.hipo.exception.IllegalRequestException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountChatRoomRepository;
 import com.hipo.repository.AccountRepository;
@@ -32,10 +33,40 @@ public class ChatRoomService {
         Account activeAccount = accountRepository.findById(accountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
 
-        ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(chatRoomName));
+        ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(chatRoomName, activeAccount));
         accountChatRoomRepository.save(new AccountChatRoom(activeAccount, chatRoom));
 
         return chatRoom;
+    }
+
+    @Transactional
+    public void updateChatRoomName(Long accountId, Long chatRoomId, String updateChatRoomName) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 ChatRoom을 찾을 수 없습니다."));
+
+        if (chatRoom.getMasterAccount() != account) {
+            throw new IllegalRequestException("해당 Account는 ChatRoom의 master가 아닙니다.");
+        }
+
+        chatRoom.updateChatRoomName(updateChatRoomName);
+    }
+
+    @Transactional
+    public void updateChatRoomMasterAccount(Long accountId, Long chatRoomId, Long updateMasterAccountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        Account updateMasterAccount = accountRepository.findById(updateMasterAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 ChatRoom을 찾을 수 없습니다."));
+
+        if (chatRoom.getMasterAccount() != account) {
+            throw new IllegalRequestException("해당 Account는 ChatRoom의 master가 아닙니다.");
+        }
+
+        chatRoom.updateChatRoomMaster(updateMasterAccount);
     }
 
     public Iterable<ChatRoomDto> findChatRoom(Long accountId, Pageable pageable, boolean all) {

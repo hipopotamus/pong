@@ -4,6 +4,7 @@ import com.hipo.argumentresolver.LoginAccountId;
 import com.hipo.dataobjcet.dto.ChatRoomDto;
 import com.hipo.dataobjcet.dto.Result;
 import com.hipo.dataobjcet.dto.ResultMessage;
+import com.hipo.dataobjcet.form.ChatRoomMasterForm;
 import com.hipo.dataobjcet.form.ChatRoomNameForm;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.service.ChatRoomService;
@@ -38,6 +39,34 @@ public class ChatRoomController {
         chatRoomService.createChatRoom(loginAccountId, chatRoomNameForm.getName());
 
         return new ResultMessage("success create ChatRoom");
+    }
+
+    @ApiOperation(value = "채팅방 이름 수정", notes = "채팅방 id와 이름을 받아 채팅방의 이름을 수정합니다.")
+    @PostMapping("/chatRoom/name")
+    public ResultMessage updateChatRoomName(@ApiIgnore @LoginAccountId Long loginAccountId,
+                                            @Valid @RequestBody ChatRoomNameForm chatRoomNameForm,
+                                            @ApiIgnore Errors errors) {
+        if (errors.hasErrors()) {
+            throw new IllegalFormException(errors);
+        }
+
+        chatRoomService.updateChatRoomName(loginAccountId, chatRoomNameForm.getChatRoomId(), chatRoomNameForm.getName());
+
+        return new ResultMessage("success update ChatRoomName");
+    }
+
+    @ApiOperation(value = "채팅방 주인 수정", notes = "채팅방 id와 accountId를 받아 채팅방의 주인을 수정합니다.")
+    @PostMapping("/chatRoom/master")
+    public ResultMessage updateChatRoomMaster(@ApiIgnore @LoginAccountId Long loginAccountId,
+                                              @Valid @RequestBody ChatRoomMasterForm chatRoomMasterForm,
+                                              @ApiIgnore Errors errors) {
+        if (errors.hasErrors()) {
+            throw new IllegalFormException(errors);
+        }
+
+        chatRoomService.updateChatRoomMasterAccount(loginAccountId, chatRoomMasterForm.getChatRoomId(), chatRoomMasterForm.getAccountId());
+
+        return new ResultMessage("success update ChatRoomName");
     }
 
     @ApiOperation(value = "채팅방 목록 조회", notes = "page와 size를 받으면 Page로 채팅방 목록을 조회합니다.\n" +

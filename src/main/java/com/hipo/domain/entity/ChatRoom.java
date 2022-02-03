@@ -32,7 +32,16 @@ public class ChatRoom extends BaseBy {
     protected ChatRoom() {
     }
 
-    public ChatRoom(String name) {
+    public ChatRoom(String name, Account masterAccount) {
         this.name = name;
+        this.masterAccount = masterAccount;
+    }
+
+    public void updateChatRoomName(String updateChatRoomName) {
+        this.name = updateChatRoomName;
+    }
+
+    public void updateChatRoomMaster(Account updateMasterAccount) {
+        this.masterAccount = updateMasterAccount;
     }
 }
