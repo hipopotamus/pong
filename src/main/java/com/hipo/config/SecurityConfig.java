@@ -48,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(HttpMethod.POST, "/account").permitAll() //** 회원가입
                 .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
+                .mvcMatchers("/pongGame/**").permitAll() // test
                 .anyRequest().authenticated();
     }
 

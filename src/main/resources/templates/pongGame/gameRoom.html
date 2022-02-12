@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1 th:text="gameRoom"></h1>
+<div class="content">
+    <button type="button" id="btnStart">시작</button>
+    <button type="button" id="btnUp">오른쪽 막대 올리기</button>
+    <button type="button" id="btnDown">오른쪽 막대 내리기</button>
+    <ul class="chat_box" id="msgArea">
+    </ul>
+    <input type="text" id="msg" class="form-control">
+</div>
+<script th:inline="javascript">
+    $(document).ready(function () {
+        var roomId = [[${roomId}]];
+        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MUB0ZXN0LmNvbSIsImlkIjoyLCJleHAiOjE2NDQ2MzUxNTcsInVzZXJuYW1lIjoidGVzdDFAdGVzdC5jb20ifQ.WaiY8sjcT-WCLgC4sHbjcrMTC6Qh2hqdVKLJI-cH46VfPZ-F0GpFOmYtohafdwKVdCk_YRnlyzNMWMR_yN464A";
+
+        var sock = new SockJS("/stomp");
+        var client = Stomp.over(sock);
+
+        client.connect({Authorization:token, RoomId:roomId}, function () {
+            client.subscribe('/sub/pongGame/' + roomId, function (chat) {
+                var content = JSON.parse(chat.body);
+                $("#msgArea").append('<li>' + '(' + content.ball.x + ', ' + content.ball.y + ')' + 'rightBarY : ' + content.rightBar.y +'</li>')
+            });
+        });
+
+        $("#btnStart").click(function () {
+            client.send('/pub/pongGame/' + roomId + '/start', {});
+        });
+        $("#btnUp").click(function () {
+            client.send('/pub/pongGame/' + roomId + '/bar', {}, JSON.stringify({master: true, up: true}));
+        });
+        $("#btnDown").click(function () {
+            client.send('/pub/pongGame/' + roomId + '/bar', {}, JSON.stringify({master: true, up: false}));
+        });
+    });
+</script>
+</body>
+</html>

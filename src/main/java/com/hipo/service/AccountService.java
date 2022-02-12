@@ -4,6 +4,7 @@ import com.hipo.dataobjcet.dto.AccountDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
+import com.hipo.domain.game.PongGameFrame;
 import com.hipo.domain.processor.FileProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
@@ -89,6 +90,26 @@ public class AccountService {
                 .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
 
         return new AccountDto(account);
+    }
+
+    @Transactional
+    public void match(PongGameFrame pongGameFrame) {
+        Account master = accountRepository.findById(pongGameFrame.getMaster().getId())
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        Account challenger = accountRepository.findById(pongGameFrame.getChallenger().getId())
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+
+        if (pongGameFrame.getMasterWinNumber() == 3) {
+            master.win();
+            challenger.lose();
+        }
+        if (pongGameFrame.getChallengerWinNumber() == 3) {
+            challenger.win();
+            master.lose();
+        }
+
+        pongGameFrame.setMaster(master);
+        pongGameFrame.setChallenger(challenger);
     }
 
 }

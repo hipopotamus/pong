@@ -2,7 +2,6 @@ package com.hipo.interceptor;
 
 import com.hipo.domain.UserAccount;
 import com.hipo.domain.entity.Account;
-import com.hipo.domain.entity.ChatRoom;
 import com.hipo.domain.processor.JudgeProcessor;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.exception.NonExistResourceException;
@@ -54,10 +53,10 @@ public class StompHandler implements ChannelInterceptor {
 
             Account account = accountRepository.findByUsername(username)
                     .orElseThrow(() -> new NonExistResourceException("해당 username을 갖는 Account를 찾을 수 없습니다."));
-            ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                    .orElseThrow(() -> new NonExistResourceException("해당 id을 갖는 ChatRoom을 찾을 수 없습니다."));
-
-            judgeProcessor.isChatRoomMember(account, chatRoom);
+//            ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+//                    .orElseThrow(() -> new NonExistResourceException("해당 id을 갖는 ChatRoom을 찾을 수 없습니다."));
+//
+//            judgeProcessor.isChatRoomMember(account, chatRoom);
 
             UserAccount userAccount = new UserAccount(account);
             Authentication authentication =

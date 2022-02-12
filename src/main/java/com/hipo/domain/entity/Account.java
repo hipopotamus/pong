@@ -29,6 +29,10 @@ public class Account extends BaseTime {
 
     private String profileImgPath;
 
+    private int win = 0;
+
+    private int lose = 0;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -73,5 +77,13 @@ public class Account extends BaseTime {
 
     public void settingRole(Role role) {
         this.role = role;
+    }
+
+    public void win() {
+        win += 1;
+    }
+
+    public void lose() {
+        lose += 1;
     }
 }
