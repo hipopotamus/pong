@@ -1,6 +1,7 @@
 package com.hipo.domain.game;
 
 import com.hipo.domain.entity.Account;
+import com.hipo.exception.IllegalRequestException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,8 @@ public class PongGameFrame {
     private boolean ready = false;
 
     private boolean end = false;
+
+    private int maxCapacity;
 
     private Account master;
 
@@ -162,12 +165,21 @@ public class PongGameFrame {
         }
     }
 
-    public PongGameFrame(Bar rightBar, Bar leftBar, Ball ball, int width, int height) {
+    public PongGameFrame(Bar rightBar, Bar leftBar, Ball ball, int width, int height, int maxCapacity) {
         this.masterBar = rightBar;
         this.challengerBar = leftBar;
         this.ball = ball;
         this.width = width;
         this.height = height;
         this.initValue = new InitValue(rightBar, leftBar, ball, width, height);
+        this.maxCapacity = maxCapacity;
+    }
+
+    public void appendSpectator(String nickname) {
+        if (spectator.size() < maxCapacity) {
+            spectator.add(nickname);
+            return;
+        }
+        throw new IllegalRequestException("현재 방의 인원이 최대여서 참여할 수 없습니다.");
     }
 }

@@ -31,7 +31,7 @@ public class PongGameManager {
         Ball ball = new Ball(400 - 10, 200 - 10, 20, 20, 2, 0, 800, 400);
         Bar leftBar = new Bar(50, 200 + 40, 20, 80, 2);
         Bar rightBar = new Bar(800 - 50 - 20, 200 + 40 +6, 20, 80, 2);
-        PongGameFrame pongGameFrame = new PongGameFrame(rightBar, leftBar, ball, 800, 400);
+        PongGameFrame pongGameFrame = new PongGameFrame(rightBar, leftBar, ball, 800, 400, 8);
         pongGameFrame.setMaster(master);
 
         Timer timer = sendPongGameFrame(gameRoomId, pongGameFrame);
@@ -75,5 +75,11 @@ public class PongGameManager {
 
         PongGameFrame pongGameFrame = findPongGameFrame(gameRoomId);
         pongGameFrame.setChallenger(challenger);
+    }
+
+    public void attendRoomBySpectator(Long gameRoomId, Long accountId) {
+        Account spectator = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
+        findPongGameFrame(gameRoomId).appendSpectator(spectator.getNickname());
     }
 }

@@ -30,7 +30,7 @@ public class PongGameController {
         Account master = accountRepository.findByUsername("test1@test.com").orElse(null);
         Account challenger = accountRepository.findByUsername("test2@test.com").orElse(null);
 
-        PongGameFrame pongGameFrame = new PongGameFrame(rightBar, leftBar, ball, 800, 400);
+        PongGameFrame pongGameFrame = new PongGameFrame(rightBar, leftBar, ball, 800, 400 , 8);
         pongGameFrame.setMaster(master);
         pongGameFrame.setChallenger(challenger);
         pongGameFrame.start();
