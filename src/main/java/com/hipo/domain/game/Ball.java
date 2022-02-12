@@ -17,30 +17,30 @@ public class Ball {
 
     private int dir;
 
-    private int frameWidth;
+    private int maxWidth;
 
-    private int frameHeight;
+    private int maxHeight;
 
-    public Ball(int x, int y, int width, int height, int speed, int dir, int frameWidth, int frameHeight) {
+    public Ball(int x, int y, int width, int height, int speed, int dir, int maxWidth, int maxHeight) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.speed = speed;
         this.dir = dir;
-        this.frameWidth = frameWidth;
-        this.frameHeight = frameHeight;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
     }
 
     private void checkBoarder() {
         if (x < 0) {
             x = 0;
         }
-        if (x > frameWidth - width) {
-            x = frameWidth - width;
+        if (x > maxWidth - width) {
+            x = maxWidth - width;
         }
-        if (y > frameHeight) {
-            y = frameHeight;
+        if (y > maxHeight) {
+            y = maxHeight;
         }
         if (y < height) {
             y = height;

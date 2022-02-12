@@ -18,9 +18,12 @@ public class InitValue {
     private int height;
 
     public InitValue(Bar masterBar, Bar challengerBar, Ball ball, int width, int height) {
-        this.masterBar = new Bar(masterBar.getX(), masterBar.getY(), masterBar.getWidth(), masterBar.getHeight(), masterBar.getSpeed());
-        this.challengerBar = new Bar(challengerBar.getX(), challengerBar.getY(), challengerBar.getWidth(), challengerBar.getHeight(), challengerBar.getSpeed());
-        this.ball = new Ball(ball.getX(), ball.getY(), ball.getWidth(), ball.getHeight(), ball.getSpeed(), ball.getDir(), width, height);
+        this.masterBar = new Bar(masterBar.getX(), masterBar.getY(), masterBar.getWidth(), masterBar.getHeight(),
+                masterBar.getSpeed(), width, height);
+        this.challengerBar = new Bar(challengerBar.getX(), challengerBar.getY(), challengerBar.getWidth(),
+                challengerBar.getHeight(), challengerBar.getSpeed(), width, height);
+        this.ball = new Ball(ball.getX(), ball.getY(), ball.getWidth(), ball.getHeight(), ball.getSpeed(),
+                ball.getDir(), width, height);
         this.width = width;
         this.height = height;
     }

@@ -16,9 +16,9 @@ import java.util.List;
 @Transactional
 public class PongGameFrame {
 
-    private Bar masterBar;
+    private Bar masterBar; //right
 
-    private Bar challengerBar;
+    private Bar challengerBar; //left
 
     private Ball ball;
 
@@ -34,7 +34,7 @@ public class PongGameFrame {
 
     private boolean ready = false;
 
-    private boolean end = false;
+    private boolean end = true;
 
     private int maxCapacity;
 
@@ -46,14 +46,12 @@ public class PongGameFrame {
 
     private InitValue initValue;
 
-    Timer timer = new Timer(10, new ActionListener() {
+    Timer gameStart = new Timer(10, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             ball.move();
-            checkCollision();
+            checkBallCollision();
             match();
-            log.info("ball x : {}, ball y : {}", ball.getX(), ball.getY());
-            log.info("master : {}, challenger : {}", masterWinNumber, challengerWinNumber);
             end();
         }
     });
@@ -61,18 +59,15 @@ public class PongGameFrame {
     public void start() {
         end = false;
         started = true;
-        timer.start();
+        initializationWinNumber();
+        initialization();
+        gameStart.start();
     }
 
     public void end() {
         if (end) {
-            timer.stop();
+            gameStart.stop();
         }
-    }
-
-    private void checkCollision() {
-        checkBallCollision();
-        checkBarCollision();
     }
 
     private void match() {
@@ -83,7 +78,9 @@ public class PongGameFrame {
             if (challengerWinNumber == 3) {
                 end = true;
             }
-        } else if (ball.getX() <= 0) {
+        }
+
+        if (ball.getX() <= 0) {
             masterWinNumber += 1;
             initialization();
 
@@ -91,10 +88,6 @@ public class PongGameFrame {
                 end = true;
             }
         }
-    }
-
-    public void pause() {
-
     }
 
     private void initialization() {
@@ -106,19 +99,9 @@ public class PongGameFrame {
         ball.setY(initValue.getBall().getY());
     }
 
-    private void checkBarCollision() {
-        if (masterBar.getY() >= height) {
-            masterBar.setY(height);
-        }
-        if (challengerBar.getY() >= height) {
-            challengerBar.setY(height);
-        }
-        if (masterBar.getY() - masterBar.getHeight() <= 0) {
-            masterBar.setY(masterBar.getHeight());
-        }
-        if (challengerBar.getY() - challengerBar.getHeight() <= 0) {
-            challengerBar.setY(challengerBar.getHeight());
-        }
+    private void initializationWinNumber() {
+        masterWinNumber = 0;
+        challengerWinNumber = 0;
     }
 
     private void checkBallCollision() {

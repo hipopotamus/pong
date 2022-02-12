@@ -4,8 +4,7 @@ import com.hipo.dataobjcet.dto.BarCond;
 import com.hipo.dataobjcet.form.ChatMessageForm;
 import com.hipo.domain.entity.enums.MessageType;
 import com.hipo.domain.game.PongGameFrame;
-import com.hipo.domain.game.PongGameManager;
-import com.hipo.service.AccountService;
+import com.hipo.repository.PongGameRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -18,25 +17,24 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class PongGameSocketController {
 
-    private final PongGameManager pongGameManager;
+    private final PongGameRepository pongGameRepository;
     private final SimpMessagingTemplate template;
-    private final AccountService accountService;
 
     @MessageMapping("/pongGame/{gameRoomId}/ready")
     public void ready(@DestinationVariable("gameRoomId") Long gameRoomId) {
-        PongGameFrame pongGameFrame = pongGameManager.findPongGameFrame(gameRoomId);
+        PongGameFrame pongGameFrame = pongGameRepository.findPongGameFrame(gameRoomId);
         pongGameFrame.setReady(true);
     }
 
     @MessageMapping("/pongGame/{gameRoomId}/start")
     public void start(@DestinationVariable("gameRoomId") Long gameRoomId) {
-        PongGameFrame pongGameFrame = pongGameManager.findPongGameFrame(gameRoomId);
+        PongGameFrame pongGameFrame = pongGameRepository.findPongGameFrame(gameRoomId);
         pongGameFrame.start();
     }
 
     @MessageMapping("/pongGame/{gameRoomId}/bar")
     public void barControl(@DestinationVariable("gameRoomId") Long gameRoomId, BarCond barCond) {
-        PongGameFrame pongGameFrame = pongGameManager.findPongGameFrame(gameRoomId);
+        PongGameFrame pongGameFrame = pongGameRepository.findPongGameFrame(gameRoomId);
         if (barCond.getMaster()) {
             if (barCond.getUp()) {
                 pongGameFrame.getMasterBar().up();

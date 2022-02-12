@@ -2,7 +2,6 @@ package com.hipo.service;
 
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.GameRoom;
-import com.hipo.domain.game.PongGameManager;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.GameRoomRepository;
@@ -17,7 +16,7 @@ public class GameRoomService {
 
     private final GameRoomRepository gameRoomRepository;
     private final AccountRepository accountRepository;
-    private final PongGameManager pongGameManager;
+    private final PongGameService pongGameManager;
 
     @Transactional
     public void createGameRoom(Long accountId, String name) {

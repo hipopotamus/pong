@@ -3,7 +3,7 @@ package com.hipo.controller;
 import com.hipo.argumentresolver.LoginAccountId;
 import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.GameRoomForm;
-import com.hipo.domain.game.PongGameManager;
+import com.hipo.service.PongGameService;
 import com.hipo.service.GameRoomService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class GameRoomController {
 
     private final GameRoomService gameRoomService;
-    private final PongGameManager pongGameManager;
+    private final PongGameService pongGameManager;
 
     @PostMapping("/gameRoom")
     public ResultMessage createGameRoom(@ApiIgnore @LoginAccountId Long loginAccountId,
@@ -34,18 +34,18 @@ public class GameRoomController {
         return new ResultMessage("success join GameRoom By Challenger");
     }
 
+    @PostMapping("/gameRoom/{gameRoomId}/spectator")
+    public ResultMessage attendBySpectator(@ApiIgnore @LoginAccountId Long loginAccountId,
+                                           @PathVariable("gameRoomId") Long gameRoomId) {
+        pongGameManager.attendRoomBySpectator(gameRoomId, loginAccountId);
+        return new ResultMessage("success join GameRoom By Spectator");
+    }
+
     @DeleteMapping("/gameRoom/{gameRoomId}")
     public ResultMessage deleteGameRoom(@ApiIgnore @LoginAccountId Long loginAccountId,
                                         @PathVariable("gameRoomId") Long gameRoomId) {
         gameRoomService.deleteGameRoom(loginAccountId, gameRoomId);
         return new ResultMessage("success delete GameRoom");
-    }
-
-    @PostMapping("/gameRoom/{gameRoomId}/spectator")
-    public ResultMessage attendBySpectator(@ApiIgnore @LoginAccountId Long loginAccountId,
-                                           @PathVariable("gameRoomId") Long gameRoonId) {
-        pongGameManager.attendRoomBySpectator(gameRoonId, loginAccountId);
-        return new ResultMessage("success join GameRoom By Spectator");
     }
 
 }
