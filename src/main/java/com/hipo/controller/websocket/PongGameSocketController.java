@@ -62,7 +62,7 @@ public class PongGameSocketController {
         template.convertAndSend("/sub/pongGame/" + gameRoomId + "/chat", chatMessageForm);
     }
 
-    @MessageMapping("/pongGame/{gameRoomId}/chat/enter")
+    @MessageMapping("/pongGame/{gameRoomId}/chat/message")
     public void sendMessage(ChatMessageForm chatMessageForm, @DestinationVariable("gameRoomId") Long gameRoomId) {
         chatMessageForm.setMessageType(MessageType.MESSAGE);
         template.convertAndSend("/sub/pongGame/" + gameRoomId + "/chat", chatMessageForm);

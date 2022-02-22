@@ -165,4 +165,12 @@ public class PongGameFrame {
         }
         throw new IllegalRequestException("현재 방의 인원이 최대여서 참여할 수 없습니다.");
     }
+
+    public void appendChallenger(Account challenger) {
+        if (this.challenger == null) {
+            this.challenger = challenger;
+            return;
+        }
+        throw new IllegalRequestException("이미 도전자가 있습니다.");
+    }
 }

@@ -72,7 +72,7 @@ public class PongGameService {
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
 
         PongGameFrame pongGameFrame = pongGameRepository.findPongGameFrame(gameRoomId);
-        pongGameFrame.setChallenger(challenger);
+        pongGameFrame.appendChallenger(challenger);
     }
 
     public void attendRoomBySpectator(Long gameRoomId, Long accountId) {
