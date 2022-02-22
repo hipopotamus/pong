@@ -2,8 +2,10 @@ package com.hipo.config;
 
 import com.hipo.Filter.JwtAuthenticationFilter;
 import com.hipo.Filter.JwtAuthorizationFilter;
+import com.hipo.Filter.Oauth2SuccessHandler;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.repository.AccountRepository;
+import com.hipo.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AccountRepository accountRepository;
     private final JwtProcessor jwtProcessor;
+    private final Oauth2SuccessHandler oauth2SuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -44,12 +49,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()
-                .mvcMatchers("/", "/myLogin").permitAll() //** 홈페이지, 로그인
+                .mvcMatchers("/home", "/myLogin").permitAll() //** 홈페이지, 로그인
                 .mvcMatchers(HttpMethod.POST, "/account").permitAll() //** 회원가입
                 .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
                 .mvcMatchers("/pongGame/**").permitAll() // test
                 .anyRequest().authenticated();
+
+        http
+                .oauth2Login()
+                .successHandler(oauth2SuccessHandler)
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService);
     }
 
     @Override
