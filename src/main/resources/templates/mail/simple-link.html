@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>hipo</title>
+</head>
+<body>
+    <div>
+        <p>안녕하세요. <span th:text="${username}"></span>님</p>
+
+        <h2 th:text="${message}">메시지</h2>
+
+        <div>
+            <h2 th:text="${token}">토큰</h2>
+        </div>
+    </div>
+    <footer>
+        <small>hipo&copy; 2022</small>
+    </footer>
+</body>
+</html>

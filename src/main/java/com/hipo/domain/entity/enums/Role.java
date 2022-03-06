@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    User("ROLE_USER");
+    User("ROLE_USER"), NotVerified("ROLE_NotVerifiedUser");
 
     private String roleName;
 

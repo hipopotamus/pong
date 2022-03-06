@@ -54,7 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
                 .mvcMatchers("/pongGame/**").permitAll() // test
-                .anyRequest().authenticated();
+                .mvcMatchers("/email/**").permitAll() // email
+//                .anyRequest().authenticated();
+                .anyRequest().hasAuthority("ROLE_USER");
 
         http
                 .oauth2Login()

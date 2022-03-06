@@ -3,6 +3,7 @@ package com.hipo.domain.entity;
 import com.hipo.domain.entity.base.BaseTime;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
+import com.hipo.exception.IllegalRequestException;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -32,6 +35,12 @@ public class Account extends BaseTime {
     private int win = 0;
 
     private int lose = 0;
+
+    private boolean emailVerified;
+
+    private String emailCheckToken;
+
+    private LocalDateTime emailCheckTokenGenerateAt;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -74,6 +83,26 @@ public class Account extends BaseTime {
         this.birthDate = birthDate;
     }
     //수정 관련//
+
+    //email 인증 관련
+    public void generateEmailToken() {
+        this.emailCheckToken = UUID.randomUUID().toString();
+        this.emailCheckTokenGenerateAt = LocalDateTime.now();
+    }
+
+    public void verifyEmail(String emailCheckToken) {
+        if (this.emailCheckToken.equals(emailCheckToken)) {
+            emailVerified = true;
+            this.role = Role.User;
+            return;
+        }
+        throw new IllegalRequestException("emailToken이 맞지 않습니다.");
+    }
+
+    public boolean canSendEmailToken() {
+        return this.emailCheckTokenGenerateAt.isBefore(LocalDateTime.now().minusMinutes(5));
+    }
+    //email 인증 관련
 
     public void settingRole(Role role) {
         this.role = role;

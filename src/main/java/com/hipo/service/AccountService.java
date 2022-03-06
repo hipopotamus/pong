@@ -43,7 +43,7 @@ public class AccountService {
                 .password(encodePassword)
                 .nickname(nickname)
                 .profileImgPath(storeFilePath)
-                .role(Role.User)
+                .role(Role.NotVerified)
                 .gender(gender)
                 .birthDate(birthDate)
                 .build();
