@@ -10,7 +10,6 @@ server:
 
 spring:
   profiles:
-    active: test
     include: db
   messages:
     basename: messages,errors
@@ -21,9 +20,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        format_sql: true
-        use_sql_comment: true
         default_batch_fetch_size: 100
 
 logging.level:

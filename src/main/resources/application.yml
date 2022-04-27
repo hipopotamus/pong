@@ -10,7 +10,6 @@ server:
 
 spring:
   profiles:
-    active: local
     include: oauth, db
   messages:
     basename: messages,errors
@@ -21,14 +20,16 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
         format_sql: true
-        use_sql_comment: true
         default_batch_fetch_size: 100
 
-logging.level:
-  org.hibernate.SQL: debug
-  org.hibernate.type: trace
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+
+#logging.level:
+#  org.hibernate.SQL: debug
 
 file:
   profile: /Users/hipo/Desktop/hipo/src/main/resources/static/profile_img/

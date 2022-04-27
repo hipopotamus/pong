@@ -31,7 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final Oauth2SuccessHandler oauth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -55,7 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
                 .mvcMatchers("/pongGame/**").permitAll() // test
                 .mvcMatchers("/email/**").permitAll() // email
-//                .anyRequest().authenticated();
                 .anyRequest().hasAuthority("ROLE_USER");
 
         http
@@ -72,6 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
+    @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();

@@ -5,7 +5,6 @@ import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
 import com.hipo.exception.IllegalRequestException;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.hibernate.annotations.Where;
 
@@ -16,7 +15,6 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@EqualsAndHashCode(of = "id")
 @Where(clause = "deleted = false")
 public class Account extends BaseTime {
 
@@ -116,3 +114,4 @@ public class Account extends BaseTime {
         lose += 1;
     }
 }
+
