@@ -850,7 +850,7 @@ class AccountControllerTest {
         MockMultipartFile file = new MockMultipartFile("profileFile", fileName, "image/jpeg",
                 new FileInputStream("/Users/hipo/Desktop/hipo/src/test/resources/static/testProfileImg.jpeg"));
 
-        String beforeProfileImgPath = account.getProfileImgPath();
+        String beforeProfileImgPath = account.getProfileImgName();
 
         //when
         mockMvc.perform(multipart("/account/profileImg").file(file)
@@ -858,7 +858,7 @@ class AccountControllerTest {
                 .andExpect(status().isOk());
 
         //then
-        assertThat(account.getProfileImgPath()).isNotEqualTo(beforeProfileImgPath);
+        assertThat(account.getProfileImgName()).isNotEqualTo(beforeProfileImgPath);
     }
 
     @Test

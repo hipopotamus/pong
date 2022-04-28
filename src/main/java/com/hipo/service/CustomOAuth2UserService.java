@@ -40,9 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String username = name + "_" + oAuth2User.getAttribute("email");
         Optional<Account> findAccount = accountRepository.findByUsername(username);
 
-        if (!findAccount.isPresent()) {
+        if (findAccount.isEmpty()) {
             String password = bCryptPasswordEncoder.encode("HipoService_OAuthAccount");
-            String profileImgPath = "/Users/hipo/Desktop/hipo/src/main/resources/static/profile_img/default.jpeg";
+            String profileImgPath = "default.jpeg";
             String nickname = UUID.randomUUID().toString();
 
             Account account = Account.builder()

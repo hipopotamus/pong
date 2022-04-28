@@ -35,14 +35,14 @@ public class AccountService {
     @Transactional
     public Account createAccount(String username, String password, String nickname, MultipartFile multipartFile,
                                  Gender gender, LocalDate birthDate) throws IOException {
-        String storeFilePath = fileProcessor.storeFile(multipartFile, profileImgPath);
+        String storeFileName = fileProcessor.storeFile(multipartFile, profileImgPath);
         String encodePassword = bCryptPasswordEncoder.encode(password);
 
         Account account = Account.builder()
                 .username(username)
                 .password(encodePassword)
                 .nickname(nickname)
-                .profileImgPath(storeFilePath)
+                .profileImgPath(storeFileName)
                 .role(Role.NotVerified)
                 .gender(gender)
                 .birthDate(birthDate)
@@ -85,13 +85,6 @@ public class AccountService {
         account.updateBirthDate(birthDate);
     }
 
-    public AccountDto findByNickname(String nickname) {
-        Account account = accountRepository.findByNickname(nickname)
-                .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
-
-        return new AccountDto(account);
-    }
-
     @Transactional
     public void match(PongGameFrame pongGameFrame) {
         Account master = accountRepository.findById(pongGameFrame.getMaster().getId())
@@ -110,6 +103,20 @@ public class AccountService {
 
         pongGameFrame.setMaster(master);
         pongGameFrame.setChallenger(challenger);
+    }
+
+    public AccountDto findByNickname(String nickname) {
+        Account account = accountRepository.findByNickname(nickname)
+                .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
+
+        return new AccountDto(account);
+    }
+
+    public AccountDto findById(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 accountId를 갖는 Account를 찾을 수 없습니다."));
+
+        return new AccountDto(account);
     }
 
 }

@@ -1,26 +1,30 @@
 package com.hipo.controller;
 
 import com.hipo.argumentresolver.LoginAccountId;
+import com.hipo.dataobjcet.dto.AccountDto;
 import com.hipo.dataobjcet.dto.ResultMessage;
 import com.hipo.dataobjcet.form.*;
+import com.hipo.domain.processor.FileProcessor;
 import com.hipo.exception.IllegalFormException;
 import com.hipo.service.AccountService;
 import com.hipo.validator.AccountBirthDateFormValidator;
 import com.hipo.validator.AccountFormValidator;
 import com.hipo.validator.AccountNicknameFormValidator;
 import com.hipo.validator.AccountProfileFileFormValidator;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
-@Api(tags = {"2. Account"})
 @RestController
 @RequiredArgsConstructor
 public class AccountController {
@@ -30,6 +34,11 @@ public class AccountController {
     private final AccountNicknameFormValidator accountNicknameFormValidator;
     private final AccountProfileFileFormValidator accountProfileFileFormValidator;
     private final AccountBirthDateFormValidator accountBirthDateFormValidator;
+    private final FileProcessor fileProcessor;
+
+
+    @Value("${file.profile}")
+    private String profileImgPath;
 
     @InitBinder("accountForm")
     public void accountFormBinder(WebDataBinder webDataBinder) {
@@ -51,10 +60,9 @@ public class AccountController {
         webDataBinder.addValidators(accountBirthDateFormValidator);
     }
 
-    @ApiOperation(value = "회원 가입", notes = "회원 정보를 받아 새로운 회원을 생성합니다.")
     @PostMapping("/account")
     public ResultMessage createAccount(@Valid @ModelAttribute AccountForm accountForm,
-                                       @ApiIgnore Errors errors) throws IOException {
+                                       Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
@@ -65,11 +73,10 @@ public class AccountController {
         return new ResultMessage("success create Account");
     }
 
-    @ApiOperation(value = "내 닉네임 수정", notes = "변경할 닉네임을 받아 회원의 닉네임을 수정합니다.")
     @PostMapping("/account/nickname")
     public ResultMessage updateNickname(@LoginAccountId Long loginAccountId,
                                         @Valid @RequestBody AccountNicknameForm accountNicknameForm,
-                                        @ApiIgnore Errors errors) {
+                                        Errors errors) {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
@@ -79,11 +86,10 @@ public class AccountController {
         return new ResultMessage("success update Account nickname");
     }
 
-    @ApiOperation(value = "내 프로필 이미지 수정", notes = "변경할 프로필 이미지를 받아 회원의 프로필 이미지를 수정합니다.")
     @PostMapping("/account/profileImg")
-    public ResultMessage updateProfileImg(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateProfileImg(@LoginAccountId Long loginAccountId,
                                           @Valid @ModelAttribute AccountProfileFileForm accountProfileFileForm,
-                                          @ApiIgnore Errors errors) throws IOException {
+                                          Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
@@ -93,11 +99,10 @@ public class AccountController {
         return new ResultMessage("success update Account profileImg");
     }
 
-    @ApiOperation(value = "내 성별 수정", notes = "변경할 성별을 받아 회원의 성별을 수정합니다.")
     @PostMapping("/account/gender")
-    public ResultMessage updateGender(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateGender(@LoginAccountId Long loginAccountId,
                                       @Valid @RequestBody AccountGenderForm accountGenderForm,
-                                      @ApiIgnore Errors errors) throws IOException {
+                                      Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
@@ -107,11 +112,10 @@ public class AccountController {
         return new ResultMessage("success update Account gender");
     }
 
-    @ApiOperation(value = "내 생년월일 수정", notes = "변경할 생년월일을 받아 회원의 생년원일을 수정합니다.")
     @PostMapping("/account/birthDate")
-    public ResultMessage updateBirthDate(@ApiIgnore @LoginAccountId Long loginAccountId,
+    public ResultMessage updateBirthDate(@LoginAccountId Long loginAccountId,
                                           @Valid @RequestBody AccountBirthDateForm accountBirthDateForm,
-                                          @ApiIgnore Errors errors) throws IOException {
+                                          Errors errors) throws IOException {
         if (errors.hasErrors()) {
             throw new IllegalFormException(errors);
         }
@@ -119,6 +123,26 @@ public class AccountController {
         accountService.updateBirthDate(loginAccountId, accountBirthDateForm.getBirthDate());
 
         return new ResultMessage("success update Account birthDate");
+    }
+
+    @GetMapping("/account/{accountId}")
+    public AccountDto findAccount(@PathVariable Long accountId) {
+        return accountService.findById(accountId);
+    }
+
+    @GetMapping("/account/profileImg/{accountId}")
+    public ResponseEntity<Resource> getProfileImg(@PathVariable Long accountId) throws MalformedURLException {
+        AccountDto accountDto = accountService.findById(accountId);
+        String profileImgFullPath = fileProcessor.getFullPath(profileImgPath, accountDto.getProfileImgName());
+
+        UrlResource urlResource = new UrlResource("file:" + profileImgFullPath);
+        String mediaType = fileProcessor.getMediaType(accountDto.getProfileImgName());
+        if (urlResource.exists()) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, mediaType)
+                    .body(urlResource);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

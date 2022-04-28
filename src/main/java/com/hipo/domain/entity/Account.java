@@ -28,7 +28,7 @@ public class Account extends BaseTime {
 
     private String nickname;
 
-    private String profileImgPath;
+    private String profileImgName;
 
     private int win = 0;
 
@@ -58,7 +58,7 @@ public class Account extends BaseTime {
         this.username = username;
         this.password = password;
         this.nickname = nickname;
-        this.profileImgPath = profileImgPath;
+        this.profileImgName = profileImgPath;
         this.role = role;
         this.gender = gender;
         this.birthDate = birthDate;
@@ -69,8 +69,8 @@ public class Account extends BaseTime {
        this.nickname = nickname;
     }
 
-    public void updateProfileImg(String profileImgPath) {
-        this.profileImgPath = profileImgPath;
+    public void updateProfileImg(String profileImgName) {
+        this.profileImgName = profileImgName;
     }
 
     public void updateGender(Gender gender) {
@@ -82,7 +82,17 @@ public class Account extends BaseTime {
     }
     //수정 관련//
 
-    //email 인증 관련
+    //게임 관련//
+    public void win() {
+        win += 1;
+    }
+
+    public void lose() {
+        lose += 1;
+    }
+    //게임 관련//
+
+    //email 인증 관련//
     public void generateEmailToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
         this.emailCheckTokenGenerateAt = LocalDateTime.now();
@@ -96,22 +106,13 @@ public class Account extends BaseTime {
         }
         throw new IllegalRequestException("emailToken이 맞지 않습니다.");
     }
-
     public boolean canSendEmailToken() {
         return this.emailCheckTokenGenerateAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }
-    //email 인증 관련
+    //email 인증 관련//
 
     public void settingRole(Role role) {
         this.role = role;
-    }
-
-    public void win() {
-        win += 1;
-    }
-
-    public void lose() {
-        lose += 1;
     }
 }
 

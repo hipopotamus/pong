@@ -5,6 +5,8 @@ import com.hipo.Filter.JwtAuthorizationFilter;
 import com.hipo.Filter.Oauth2SuccessHandler;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.repository.AccountRepository;
+import com.hipo.security.CustomAccessDeniedHandler;
+import com.hipo.security.CustomAuthenticationEntryPoint;
 import com.hipo.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -17,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -48,9 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()
+                .mvcMatchers(HttpMethod.GET, "/account/**").permitAll()
                 .mvcMatchers("/home", "/myLogin").permitAll() //** 홈페이지, 로그인
                 .mvcMatchers(HttpMethod.POST, "/account").permitAll() //** 회원가입
-                .mvcMatchers("/swagger-ui.html", "/webjars/**", "/v2/**", "/swagger-resources/**").permitAll() //** swagger
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
                 .mvcMatchers("/pongGame/**").permitAll() // test
                 .mvcMatchers("/email/**").permitAll() // email
@@ -61,6 +64,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(oauth2SuccessHandler)
                 .userInfoEndpoint()
                 .userService(customOAuth2UserService);
+
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());
     }
 
     @Override
@@ -86,5 +94,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

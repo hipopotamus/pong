@@ -19,18 +19,24 @@ public class AccountDto {
 
     private String nickname;
 
-    private String profileImgPath;
+    private String profileImgName;
 
     private Gender gender;
 
     private LocalDate birthDate;
 
+    private int win;
+
+    private int lose;
+
     public AccountDto(Account account) {
        id = account.getId();
        username = account.getUsername();
        nickname = account.getNickname();
-       profileImgPath = account.getProfileImgPath();
+       profileImgName = account.getProfileImgName();
        gender = account.getGender();
        birthDate = account.getBirthDate();
+       win = account.getWin();
+       lose = account.getLose();
     }
 }
