@@ -2,7 +2,6 @@ package com.hipo.Filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hipo.domain.entity.Account;
-import com.hipo.utill.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
-    private final JwtProcessor jwtProcessor;
 
     @SneakyThrows
     @Override
