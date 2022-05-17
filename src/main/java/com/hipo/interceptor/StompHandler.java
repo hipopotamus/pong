@@ -2,7 +2,7 @@ package com.hipo.interceptor;
 
 import com.hipo.security.UserAccount;
 import com.hipo.domain.entity.Account;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.JwtProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.properties.JwtProperties;
 import com.hipo.repository.AccountRepository;

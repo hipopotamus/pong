@@ -1,8 +1,8 @@
 package com.hipo.service;
 
 import com.hipo.security.UserAccount;
-import com.hipo.domain.processor.AuthProcessor;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.AuthProcessor;
+import com.hipo.utill.JwtProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

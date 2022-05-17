@@ -1,7 +1,7 @@
 package com.hipo.validator;
 
 import com.hipo.web.form.AccountForm;
-import com.hipo.domain.processor.FileProcessor;
+import com.hipo.utill.FileProcessor;
 import com.hipo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

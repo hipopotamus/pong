@@ -1,4 +1,4 @@
-package com.hipo.domain.processor;
+package com.hipo.utill;
 
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;

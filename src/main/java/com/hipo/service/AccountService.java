@@ -2,7 +2,7 @@ package com.hipo.service;
 
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.game.PongGameFrame;
-import com.hipo.domain.processor.FileProcessor;
+import com.hipo.utill.FileProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.web.form.AccountSearchCond;

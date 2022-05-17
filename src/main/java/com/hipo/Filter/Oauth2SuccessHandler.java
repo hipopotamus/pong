@@ -1,7 +1,7 @@
 package com.hipo.Filter;
 
 import com.hipo.security.UserAccount;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.JwtProcessor;
 import com.hipo.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
