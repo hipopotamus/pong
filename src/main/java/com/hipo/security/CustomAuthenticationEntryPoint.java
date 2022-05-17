@@ -1,7 +1,8 @@
 package com.hipo.security;
 
 import com.google.gson.Gson;
-import com.hipo.dataobjcet.dto.BasicErrorResult;
+import com.hipo.web.dto.BasicErrorResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -16,7 +17,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
         BasicErrorResult authenticationException =
-                new BasicErrorResult("401", "UnAuthorized", "인증되지 않았습니다.");
+                new BasicErrorResult(HttpStatus.UNAUTHORIZED.value(), "UnAuthorized", "인증되지 않았습니다.");
         String authenticationExJson = new Gson().toJson(authenticationException);
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

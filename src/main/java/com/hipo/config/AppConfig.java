@@ -1,15 +1,28 @@
 package com.hipo.config;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
+import com.p6spy.engine.spy.P6SpyOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class AppConfig {
+
+    @PostConstruct
+    public void setLogMessageFormat() {
+        P6SpyOptions.getActiveInstance().setLogMessageFormat(P6spySqlFormatConfiguration.class.getName());
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuditorAware<String> auditorProvider() {

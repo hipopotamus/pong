@@ -1,6 +1,6 @@
 package com.hipo.validator;
 
-import com.hipo.dataobjcet.form.AccountForm;
+import com.hipo.web.form.AccountForm;
 import com.hipo.domain.processor.FileProcessor;
 import com.hipo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +37,20 @@ public class AccountFormValidator implements Validator {
         }
 
         //** profileFile
-        String originalFilename = accountForm.getProfileFile().getOriginalFilename();
+        if (accountForm.getProfileImgFile() != null) {
+            String originalFilename = accountForm.getProfileImgFile().getOriginalFilename();
+            String extracted = fileProcessor.extracted(originalFilename);
 
-        if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
-            errors.rejectValue("profileFile", "BlankFileName");
-        } else if (!originalFilename.contains(".") || fileProcessor.extracted(originalFilename).equals(".")) {
-            errors.rejectValue("profileFile", "NonExtractFileName");
+            if (originalFilename.isBlank()) {
+                errors.rejectValue("profileImgFile", "BlankFileName");
+            } else if (!originalFilename.contains(".") || extracted.isEmpty()) {
+                errors.rejectValue("profileImgFile", "NonExtractFileName");
+            }
         }
 
         //** birthDate
         LocalDate birthDate = accountForm.getBirthDate();
-        if (birthDate != null && (birthDate.isAfter(LocalDate.now()) || birthDate.isEqual(LocalDate.now()))) {
+        if (birthDate != null && birthDate.isAfter(LocalDate.now())) {
             errors.rejectValue("birthDate", "FutureBirthDate");
         }
     }

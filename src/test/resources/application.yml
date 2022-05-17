@@ -10,7 +10,7 @@ server:
 
 spring:
   profiles:
-    include: db
+    include: oauth, db
   messages:
     basename: messages,errors
 
@@ -27,4 +27,4 @@ logging.level:
   org.hibernate.type: trace
 
 file:
-  profile: /Users/hipo/Desktop/hipo/src/test/resources/static/profile_img/
+  profile: /Users/hipo/Desktop/hipo_img/profile_img/

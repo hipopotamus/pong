@@ -19,7 +19,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -57,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/stomp/**", "/chatting/**").permitAll()
                 .mvcMatchers("/pongGame/**").permitAll() // test
                 .mvcMatchers("/email/**").permitAll() // email
-                .anyRequest().hasAuthority("ROLE_USER");
+                .anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_NotVerifiedUser"); //NotVerified <- 임시
 
         http
                 .oauth2Login()
@@ -94,10 +93,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

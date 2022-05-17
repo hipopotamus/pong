@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 public class BaseTime {
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createDate;

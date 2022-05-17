@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.AccountDto;
+import com.hipo.web.dto.AccountDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Relation;
 import com.hipo.domain.entity.enums.RelationState;

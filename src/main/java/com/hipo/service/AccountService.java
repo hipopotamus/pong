@@ -1,23 +1,23 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.AccountDto;
 import com.hipo.domain.entity.Account;
-import com.hipo.domain.entity.enums.Gender;
-import com.hipo.domain.entity.enums.Role;
 import com.hipo.domain.game.PongGameFrame;
 import com.hipo.domain.processor.FileProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
+import com.hipo.web.form.AccountSearchCond;
+import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,32 +31,35 @@ public class AccountService {
     @Value("${file.profile}")
     private String profileImgPath;
 
-    @SneakyThrows
     @Transactional
-    public Account createAccount(String username, String password, String nickname, MultipartFile multipartFile,
-                                 Gender gender, LocalDate birthDate) throws IOException {
-        String storeFileName = fileProcessor.storeFile(multipartFile, profileImgPath);
-        String encodePassword = bCryptPasswordEncoder.encode(password);
+    public void saveAccount(Account account){
+        accountRepository.save(account);
+    }
 
-        Account account = Account.builder()
-                .username(username)
-                .password(encodePassword)
-                .nickname(nickname)
-                .profileImgPath(storeFileName)
-                .role(Role.NotVerified)
-                .gender(gender)
-                .birthDate(birthDate)
-                .build();
+    public Account findByNickname(String nickname) {
+        return accountRepository.findByNickname(nickname)
+                .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
+    }
 
-        return accountRepository.save(account);
+    public Account findById(Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 accountId를 갖는 Account를 찾을 수 없습니다."));
+    }
+
+    public List<Account> findAll() {
+        return accountRepository.findAll();
+    }
+
+    public QueryResults<Account> findAccountByPage(AccountSearchCond accountSearchCond, Pageable pageable) {
+        return accountRepository.findAccountsByPage(accountSearchCond, pageable);
     }
 
     @Transactional
-    public void updateNickname(Long loginAccountId, String nickname) {
+    public void updateInfo(Long loginAccountId, Account toAccount) {
         Account account = accountRepository.findById(loginAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
 
-        account.updateNickname(nickname);
+        account.updateInfo(toAccount);
     }
 
     @Transactional
@@ -67,22 +70,19 @@ public class AccountService {
         String storeFilePath = fileProcessor.storeFile(multipartFile, profileImgPath);
 
         account.updateProfileImg(storeFilePath);
+
+        File profileImgFile = new File(profileImgPath + account.getProfileImgName());
+        if (profileImgFile.exists()) {
+            profileImgFile.delete();
+        }
     }
 
     @Transactional
-    public void updateGender(Long loginAccountId, Gender gender) {
+    public void updatePassword(Long loginAccountId, String updatedPassword) {
         Account account = accountRepository.findById(loginAccountId)
                 .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
-
-        account.updateGender(gender);
-    }
-
-    @Transactional
-    public void updateBirthDate(Long loginAccountId, LocalDate birthDate) {
-        Account account = accountRepository.findById(loginAccountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 id를 갖는 Account를 찾을 수 없습니다."));
-
-        account.updateBirthDate(birthDate);
+        String password = bCryptPasswordEncoder.encode(updatedPassword);
+        account.updatePassword(password);
     }
 
     @Transactional
@@ -104,19 +104,4 @@ public class AccountService {
         pongGameFrame.setMaster(master);
         pongGameFrame.setChallenger(challenger);
     }
-
-    public AccountDto findByNickname(String nickname) {
-        Account account = accountRepository.findByNickname(nickname)
-                .orElseThrow(() -> new NonExistResourceException("해당 nickname을 갖는 Account를 찾을 수 없습니다."));
-
-        return new AccountDto(account);
-    }
-
-    public AccountDto findById(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 accountId를 갖는 Account를 찾을 수 없습니다."));
-
-        return new AccountDto(account);
-    }
-
 }

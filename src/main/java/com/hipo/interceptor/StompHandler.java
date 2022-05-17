@@ -1,6 +1,6 @@
 package com.hipo.interceptor;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.exception.NonExistResourceException;

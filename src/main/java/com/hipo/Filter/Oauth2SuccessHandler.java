@@ -1,6 +1,6 @@
 package com.hipo.Filter;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.domain.processor.JwtProcessor;
 import com.hipo.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;

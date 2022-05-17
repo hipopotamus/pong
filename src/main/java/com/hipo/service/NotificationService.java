@@ -1,6 +1,5 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.*;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
@@ -8,6 +7,7 @@ import com.hipo.exception.AuthException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.NotificationRepository;
+import com.hipo.web.dto.*;
 import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;

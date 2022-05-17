@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.enums.Role;
 import com.hipo.repository.AccountRepository;
@@ -42,7 +42,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (findAccount.isEmpty()) {
             String password = bCryptPasswordEncoder.encode("HipoService_OAuthAccount");
-            String profileImgPath = "default.jpeg";
+            String profileImgName = "default.jpeg";
             String nickname = UUID.randomUUID().toString();
 
             Account account = Account.builder()
@@ -50,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .password(password)
                     .nickname(nickname)
                     .role(Role.User)
-                    .profileImgPath(profileImgPath)
+                    .profileImgName(profileImgName)
                     .build();
             Account savedAccount = accountRepository.save(account);
             return new UserAccount(savedAccount, oAuth2User.getAttributes());

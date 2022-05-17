@@ -1,6 +1,6 @@
 package com.hipo.test;
 
-import com.hipo.dataobjcet.dto.ResultMessage;
+import com.hipo.web.dto.ResultMessage;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.game.Ball;
 import com.hipo.domain.game.Bar;

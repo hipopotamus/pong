@@ -4,8 +4,7 @@ import com.hipo.domain.entity.base.BaseTime;
 import com.hipo.domain.entity.enums.Gender;
 import com.hipo.domain.entity.enums.Role;
 import com.hipo.exception.IllegalRequestException;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -13,9 +12,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Entity
 @Where(clause = "deleted = false")
+@Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTime {
 
     @Id @GeneratedValue
@@ -34,6 +36,8 @@ public class Account extends BaseTime {
 
     private int lose = 0;
 
+    private int point = 0;
+
     private boolean emailVerified;
 
     private String emailCheckToken;
@@ -48,47 +52,45 @@ public class Account extends BaseTime {
 
     private LocalDate birthDate;
 
-    protected Account() {
+    //수정 관련//
+    public void updateInfo(Account updatedAccount) {
+        if (updatedAccount.nickname != null) {
+            this.nickname = updatedAccount.getNickname();
+        }
+        if (updatedAccount.gender != null) {
+            this.gender = updatedAccount.getGender();
+        }
+        if (updatedAccount.birthDate != null) {
+            this.birthDate = updatedAccount.getBirthDate();
+        }
     }
 
-    //회원가입 생성자
-    @Builder
-    public Account(String username, String password, String nickname, String profileImgPath, Role role, Gender gender,
-                   LocalDate birthDate) {
-        this.username = username;
-        this.password = password;
-        this.nickname = nickname;
-        this.profileImgName = profileImgPath;
-        this.role = role;
-        this.gender = gender;
-        this.birthDate = birthDate;
+    public void updateProfileImg(String updatedProfileImgName) {
+        this.profileImgName = updatedProfileImgName;
     }
 
-    //수정 관련
-    public void updateNickname(String nickname) {
-       this.nickname = nickname;
-    }
-
-    public void updateProfileImg(String profileImgName) {
-        this.profileImgName = profileImgName;
-    }
-
-    public void updateGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public void updateBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void updatePassword(String updatedPassword) {
+        this.password = updatedPassword;
     }
     //수정 관련//
 
     //게임 관련//
     public void win() {
-        win += 1;
+        this.win += 1;
+        point();
     }
 
     public void lose() {
-        lose += 1;
+        this.lose += 1;
+        point();
+    }
+
+    public void point() {
+        if (this.win == 0) {
+            this.point = 0;
+        } else {
+            this.point = (win * 100) * (win / (win + lose));
+        }
     }
     //게임 관련//
 
@@ -106,6 +108,7 @@ public class Account extends BaseTime {
         }
         throw new IllegalRequestException("emailToken이 맞지 않습니다.");
     }
+
     public boolean canSendEmailToken() {
         return this.emailCheckTokenGenerateAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }

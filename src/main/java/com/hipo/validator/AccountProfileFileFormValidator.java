@@ -1,6 +1,6 @@
 package com.hipo.validator;
 
-import com.hipo.dataobjcet.form.AccountProfileFileForm;
+import com.hipo.web.form.AccountProfileFileForm;
 import com.hipo.domain.processor.FileProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,12 +22,13 @@ public class AccountProfileFileFormValidator implements Validator {
     public void validate(Object target, Errors errors) {
 
         AccountProfileFileForm accountProfileFileForm = (AccountProfileFileForm) target;
-        String originalFilename = accountProfileFileForm.getProfileFile().getOriginalFilename();
+        String originalFilename = accountProfileFileForm.getProfileImgFile().getOriginalFilename();
+        String extracted = fileProcessor.extracted(originalFilename);
 
-        if (originalFilename == null || originalFilename.isBlank() || originalFilename.isEmpty()) {
-            errors.rejectValue("profileFile", "BlankFileName");
-        } else if (!originalFilename.contains(".") || fileProcessor.extracted(originalFilename).equals(".")) {
-            errors.rejectValue("profileFile", "NonExtractFileName");
+        if (originalFilename.isBlank()) {
+            errors.rejectValue("profileImgFile", "BlankFileName");
+        } else if (!originalFilename.contains(".") || extracted.isEmpty()) {
+            errors.rejectValue("profileImgFile", "NonExtractFileName");
         }
     }
 }

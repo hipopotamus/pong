@@ -1,6 +1,6 @@
 package com.hipo.validator;
 
-import com.hipo.dataobjcet.form.LoginForm;
+import com.hipo.web.form.LoginForm;
 import com.hipo.domain.entity.Account;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;

@@ -21,10 +21,6 @@ public class FileProcessor {
         return storeFilename;
     }
 
-    public String getFullPath(String path, String storeFilename) {
-        return path + storeFilename;
-    }
-
     private String createStoreFileName(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
         String ext = extracted(originalFilename);
@@ -34,6 +30,10 @@ public class FileProcessor {
     public String extracted(String originalFilename) {
         int pos = originalFilename.lastIndexOf(".");
         return originalFilename.substring(pos + 1);
+    }
+
+    public String getFullPath(String path, String storeFilename) {
+        return path + storeFilename;
     }
 
     public String getMediaType(String fileName) {

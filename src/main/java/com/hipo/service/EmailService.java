@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.EmailMessage;
+import com.hipo.web.dto.EmailMessage;
 import com.hipo.domain.entity.Account;
 import com.hipo.exception.IllegalRequestException;
 import com.hipo.exception.NonExistResourceException;

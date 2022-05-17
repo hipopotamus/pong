@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.domain.entity.Account;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;

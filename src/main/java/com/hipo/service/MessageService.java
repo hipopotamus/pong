@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.dataobjcet.dto.MessageDto;
+import com.hipo.web.dto.MessageDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;
 import com.hipo.domain.entity.Message;

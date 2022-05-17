@@ -1,6 +1,6 @@
 package com.hipo.argumentresolver;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.support.WebDataBinderFactory;

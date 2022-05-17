@@ -39,4 +39,14 @@ class FileProcessorTest {
         assertThat(uuid).isNotBlank();
         assertThat(storeExtract).isEqualTo(extract);
     }
+
+    @Test
+    @DisplayName("storeFile 테스트 성공")
+    void storeFile_Testtest() throws IOException {
+
+        //given
+        String extract = "jpeg";
+        MockMultipartFile file = new MockMultipartFile("image", "testFilename." + extract, "image/jpeg",
+                new FileInputStream("/Users/hipo/Desktop/hipo_img/profile_img/default.jpeg"));
+    }
 }

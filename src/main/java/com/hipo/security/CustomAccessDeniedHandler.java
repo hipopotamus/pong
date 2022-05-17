@@ -1,7 +1,8 @@
 package com.hipo.security;
 
 import com.google.gson.Gson;
-import com.hipo.dataobjcet.dto.BasicErrorResult;
+import com.hipo.web.dto.BasicErrorResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
@@ -16,7 +17,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         BasicErrorResult authorizationException =
-                new BasicErrorResult("403", "Forbidden", "인가되지 않았습니다.");
+                new BasicErrorResult(HttpStatus.FORBIDDEN.value(), "Forbidden", "인가되지 않았습니다.");
         String authenticationExJson = new Gson().toJson(authorizationException);
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

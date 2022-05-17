@@ -1,6 +1,6 @@
 package com.hipo.repository;
 
-import com.hipo.dataobjcet.dto.NotificationSearchCond;
+import com.hipo.web.dto.NotificationSearchCond;
 import com.hipo.domain.entity.Notification;
 import com.hipo.domain.entity.enums.NotificationType;
 import com.querydsl.core.QueryResults;

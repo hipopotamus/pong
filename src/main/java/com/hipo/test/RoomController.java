@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class RoomController {
 
     //채팅방 목록 조회
     @GetMapping(value = "/rooms")
-    public String rooms(@RequestParam Long loginAccountId, @ApiIgnore Pageable pageable,
+    public String rooms(@RequestParam Long loginAccountId, Pageable pageable,
                         @RequestParam(value = "all", required = false) boolean all, Model model){
         model.addAttribute("list", chatRoomService.findChatRoom(loginAccountId, pageable, all));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));

@@ -2,7 +2,7 @@ package com.hipo.domain.processor;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.properties.JwtProperties;
 import org.springframework.stereotype.Component;
 

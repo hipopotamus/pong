@@ -1,6 +1,6 @@
 package com.hipo.service;
 
-import com.hipo.domain.UserAccount;
+import com.hipo.security.UserAccount;
 import com.hipo.domain.processor.AuthProcessor;
 import com.hipo.domain.processor.JwtProcessor;
 import lombok.RequiredArgsConstructor;
