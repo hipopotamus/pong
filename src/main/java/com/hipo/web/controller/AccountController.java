@@ -2,7 +2,7 @@ package com.hipo.web.controller;
 
 import com.hipo.argumentresolver.LoginAccountId;
 import com.hipo.domain.entity.Account;
-import com.hipo.domain.processor.FileProcessor;
+import com.hipo.utill.FileProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.service.AccountService;
 import com.hipo.web.dto.AccountDto;

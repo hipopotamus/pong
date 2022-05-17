@@ -3,7 +3,7 @@ package com.hipo.service;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.AccountChatRoom;
 import com.hipo.domain.entity.ChatRoom;
-import com.hipo.domain.processor.JudgeProcessor;
+import com.hipo.utill.JudgeProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.listener.event.InviteChatRoomEvent;
 import com.hipo.repository.AccountChatRoomRepository;

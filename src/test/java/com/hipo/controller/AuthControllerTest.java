@@ -1,7 +1,7 @@
 package com.hipo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.JwtProcessor;
 import com.hipo.repository.AccountRepository;
 import com.hipo.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;

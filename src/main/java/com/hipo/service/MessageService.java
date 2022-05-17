@@ -5,7 +5,7 @@ import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;
 import com.hipo.domain.entity.Message;
 import com.hipo.domain.entity.enums.MessageType;
-import com.hipo.domain.processor.JudgeProcessor;
+import com.hipo.utill.JudgeProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.ChatRoomRepository;

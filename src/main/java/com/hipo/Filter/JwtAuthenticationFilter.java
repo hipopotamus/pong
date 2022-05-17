@@ -2,7 +2,7 @@ package com.hipo.Filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hipo.domain.entity.Account;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.JwtProcessor;
 import com.hipo.properties.JwtProperties;
 import com.hipo.security.UserAccount;
 import lombok.RequiredArgsConstructor;

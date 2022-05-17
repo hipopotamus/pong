@@ -4,7 +4,7 @@ import com.hipo.web.dto.AccountDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.Relation;
 import com.hipo.domain.entity.enums.RelationState;
-import com.hipo.domain.processor.JudgeProcessor;
+import com.hipo.utill.JudgeProcessor;
 import com.hipo.exception.DuplicationRequestException;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.listener.event.FriendAcceptEvent;

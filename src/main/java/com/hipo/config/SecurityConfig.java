@@ -3,7 +3,7 @@ package com.hipo.config;
 import com.hipo.Filter.JwtAuthenticationFilter;
 import com.hipo.Filter.JwtAuthorizationFilter;
 import com.hipo.Filter.Oauth2SuccessHandler;
-import com.hipo.domain.processor.JwtProcessor;
+import com.hipo.utill.JwtProcessor;
 import com.hipo.repository.AccountRepository;
 import com.hipo.security.CustomAccessDeniedHandler;
 import com.hipo.security.CustomAuthenticationEntryPoint;
