@@ -51,7 +51,7 @@ public class AccountService {
     }
 
     public QueryResults<Account> findAccountByPage(AccountSearchCond accountSearchCond, Pageable pageable) {
-        return accountRepository.findAccountsByPage(accountSearchCond, pageable);
+        return accountRepository.findAccountByPage(accountSearchCond, pageable);
     }
 
     @Transactional

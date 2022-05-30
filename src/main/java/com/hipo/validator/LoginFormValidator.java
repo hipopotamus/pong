@@ -35,6 +35,5 @@ public class LoginFormValidator implements Validator {
         if (!bCryptPasswordEncoder.matches(loginForm.getPassword(), account.getPassword())) {
             errors.rejectValue("password", "WrongPassword");
         }
-
     }
 }

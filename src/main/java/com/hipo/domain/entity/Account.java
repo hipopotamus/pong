@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Where(clause = "deleted = false")
 @Entity
+@Where(clause = "deleted = false")
 @Getter
 @Builder
 @AllArgsConstructor
