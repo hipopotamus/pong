@@ -24,7 +24,7 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
     }
 
     @Override
-    public QueryResults<Account> findAccountsByPage(AccountSearchCond accountSearchCond, Pageable pageable) {
+    public QueryResults<Account> findAccountByPage(AccountSearchCond accountSearchCond, Pageable pageable) {
         JPAQuery<Account> query = jpaQueryFactory
                 .selectFrom(account)
                 .where(AccountNicknameContain(accountSearchCond.getNickname()));

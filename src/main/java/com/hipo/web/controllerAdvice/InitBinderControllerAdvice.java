@@ -48,5 +48,4 @@ public class InitBinderControllerAdvice {
         webDataBinder.addValidators(loginFormValidator);
     }
     //AuthController//
-
 }
