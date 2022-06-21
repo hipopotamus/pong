@@ -110,6 +110,4 @@ public class RelationRepositoryImpl extends QuerydslRepositorySupport implements
 
         return query.fetchResults();
     }
-
-
 }

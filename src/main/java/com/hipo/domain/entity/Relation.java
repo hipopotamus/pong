@@ -30,7 +30,7 @@ public class Relation extends BaseTime {
     @Enumerated(EnumType.STRING)
     private RelationState relationState;
 
-    public void acceptRequest() {
+    public void makeFriend() {
         relationState = RelationState.FRIEND;
     }
 

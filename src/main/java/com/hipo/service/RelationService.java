@@ -55,14 +55,14 @@ public class RelationService {
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
 
         Relation requestingRelation = relationRepository
-                .findByFromAccountAndToAccountAndRelationStateEquals(toAccount, fromAccount, RelationState.REQUEST)
+                .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
                 .orElseThrow(() -> new NonExistResourceException("해당 fromAccount를 갖는 Relation을 찾을 수 없습니다."));
 
-        requestingRelation.acceptRequest();
+        requestingRelation.makeFriend();
 
         eventPublisher.publishEvent(new FriendAcceptEvent(requestingRelation));
 
-        Optional<Relation> optionalRelation = relationRepository.findByFromAccountAndToAccount(fromAccount, toAccount);
+        Optional<Relation> optionalRelation = relationRepository.findByFromAccountAndToAccount(toAccount, fromAccount);
         if (optionalRelation.isEmpty()) {
             Relation friend = Relation.builder()
                     .fromAccount(fromAccount)
@@ -73,7 +73,7 @@ public class RelationService {
             relationRepository.save(friend);
             return;
         }
-        optionalRelation.get().acceptRequest();
+        optionalRelation.get().makeFriend();
     }
 
     @Transactional

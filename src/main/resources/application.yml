@@ -15,6 +15,7 @@ spring:
     basename: messages,errors
 
   jpa:
+    open-in-view: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -32,4 +33,4 @@ decorator:
 #  org.hibernate.SQL: debug
 
 file:
-  profile: /Users/hipo/Desktop/hipo_img/profile_img/
+  profile: /Users/hipo/Desktop/project/toy_project/pongGame/hipo_img/profile_img/

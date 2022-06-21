@@ -17,23 +17,20 @@ public class RelationValidator {
     private final RelationRepository relationRepository;
     private final AccountRepository accountRepository;
 
-    public void isBlockRelation(Long fromAccountId, Long toAccountId) {
-        Account fromAccount = accountRepository.findById(fromAccountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
-        Account toAccount = accountRepository.findById(toAccountId)
-                .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
-
+    private void isBlockRelationByAccount(Account fromAccount, Account toAccount) {
         if (relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount,
                 RelationState.BLOCK)) {
             throw new IllegalRequestException("차단된 회원입니다.");
         }
     }
 
-    public void isBlockRelationByAccount(Account fromAccount, Account toAccount) {
-        if (relationRepository.existsByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount,
-                RelationState.BLOCK)) {
-            throw new IllegalRequestException("차단된 회원입니다.");
-        }
+    public void isBlockRelation(Long fromAccountId, Long toAccountId) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
+
+        isBlockRelationByAccount(fromAccount, toAccount);
     }
 
     public void validRequestFriend(Long fromAccountId, Long toAccountId) {

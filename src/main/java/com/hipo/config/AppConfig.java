@@ -37,7 +37,7 @@ public class AppConfig {
                 //** test용
 
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                if (principal == "anonymousUser") {
+                if (principal == "anonymous") {
                     return Optional.of(principal.toString());
                 }
 

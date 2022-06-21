@@ -1,16 +1,17 @@
 package com.hipo.domain.entity;
 
 import com.hipo.domain.entity.base.BaseTime;
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
 @Getter
 @Entity
-@EqualsAndHashCode(of = "id")
 @Where(clause = "deleted = false")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountChatRoom extends BaseTime {
 
     @Id
@@ -25,9 +26,6 @@ public class AccountChatRoom extends BaseTime {
     @ManyToOne
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
-
-    protected AccountChatRoom() {
-    }
 
     public AccountChatRoom(Account account, ChatRoom chatRoom) {
         this.account = account;

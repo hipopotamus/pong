@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +37,7 @@ public class RelationController {
     @PostMapping("/relation/request/accept/{accountId}")
     public ResultMessage acceptFriend(@LoginAccountId Long loginAccountId, @PathVariable Long accountId) {
         relationValidator.isBlockRelation(loginAccountId, accountId);
-        relationService.acceptFriend(loginAccountId, accountId);
+        relationService.acceptFriend(accountId, loginAccountId);
         return new ResultMessage("success accept friend request");
     }
 

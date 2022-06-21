@@ -21,7 +21,7 @@
     $(document).ready(function () {
         var roomId = [[${room.id}]];
         var username = [[${account.nickname}]];
-        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MUB0ZXN0LmNvbSIsImlkIjoyLCJleHAiOjE2NDI5OTA1NTMsInVzZXJuYW1lIjoidGVzdDFAdGVzdC5jb20ifQ.1NoP6FJPogXNPseRkTrmfpDEOxGjnutX8L_wRuM2EZmK5CfLQKWeAiCEMjyU_qLTWOSsKvI8jkuMyVb_JsHacQ";
+        var token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MEB0ZXN0LmNvbSIsImlkIjoxLCJleHAiOjE2NTU3NjEzMzMsInVzZXJuYW1lIjoidGVzdDBAdGVzdC5jb20ifQ.iM3xTzBoq6VHU8yRejXoijeJqsRBkCMqH_OvgcVLTnH_EXLLRgFE0tQsJ5ngQMiQ46eH-Ay9g39LPpbaqyMkYA";
 
         var sock = new SockJS("/stomp");
         var client = Stomp.over(sock);

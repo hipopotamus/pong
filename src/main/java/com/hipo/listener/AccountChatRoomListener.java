@@ -25,7 +25,7 @@ public class AccountChatRoomListener {
         Account acceptAccount = inviteChatRoomEvent.getAcceptAccount();
         ChatRoom chatRoom = inviteChatRoomEvent.getChatRoom();
 
-        String message = inviteAccount.getNickname() + "님이 " + "[" + chatRoom.getName() + "]" + "채팅방에 초대하였습니다.";
+        String message = inviteAccount.getNickname() + "님이 " + "[" + chatRoom.getName() + "]" + " 채팅방에 초대하였습니다.";
         Notification notification = notificationService.createNotification(message, NotificationType.INVITE_CHATROOM, acceptAccount.getId());
         notificationService.sendNotificationToSocket(acceptAccount, notification);
     }

@@ -1,7 +1,6 @@
 package com.hipo.domain.entity;
 
 import com.hipo.domain.entity.base.BaseBy;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.hibernate.annotations.Where;
 
@@ -11,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Entity
-@EqualsAndHashCode(of = "id")
 @Where(clause = "deleted = false")
 public class ChatRoom extends BaseBy {
 
