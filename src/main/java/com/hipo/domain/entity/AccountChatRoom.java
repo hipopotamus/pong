@@ -19,11 +19,11 @@ public class AccountChatRoom extends BaseTime {
     @Column(name = "accountChatRoom_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
