@@ -37,7 +37,7 @@ public class RelationController {
     @PostMapping("/relation/request/accept/{accountId}")
     public ResultMessage acceptFriend(@LoginAccountId Long loginAccountId, @PathVariable Long accountId) {
         relationValidator.isBlockRelation(loginAccountId, accountId);
-        relationService.acceptFriend(accountId, loginAccountId);
+        relationService.acceptFriend(loginAccountId, accountId);
         return new ResultMessage("success accept friend request");
     }
 

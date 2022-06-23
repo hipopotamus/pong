@@ -15,14 +15,15 @@ public class ChatRoomDto {
 
     private int size;
 
-    private List<AccountDto> participant;
+    private List<AccountDto> participants;
 
     public ChatRoomDto(ChatRoom chatRoom) {
         this.id = chatRoom.getId();
         this.name = chatRoom.getName();
         this.size = chatRoom.getParticipants().size();
-        this.participant = chatRoom.getParticipants().stream()
+        this.participants = chatRoom.getParticipants().stream()
                 .map(accountChatRoom -> new AccountDto(accountChatRoom.getAccount()))
                 .collect(Collectors.toList());
+
     }
 }

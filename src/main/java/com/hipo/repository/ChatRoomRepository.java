@@ -11,9 +11,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatR
 
     @Query("select distinct chatRoom from AccountChatRoom accountChatRoom " +
             "join accountChatRoom.account account " +
-            "join fetch accountChatRoom.chatRoom chatRoom " +
+            "join accountChatRoom.chatRoom chatRoom " +
             "join fetch chatRoom.participants participants " +
             "join fetch participants.account chatMember " +
             "where account.id = :accountId")
-    List<ChatRoom> findAllChatRoom(@Param("accountId") Long AccountId);
+    List<ChatRoom> findAllChatRoom(@Param("accountId") Long accountId);
 }

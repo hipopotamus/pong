@@ -46,7 +46,7 @@ public class TestInit {
             }
 
             //make Relation
-            for (int i = 1; i <= 20; i++) {
+            for (int i = 2; i <= 20; i++) {
                 Account fromAccount = accountService.findByNickname("test1Nickname");
                 Account toAccount = accountService.findByNickname("test" + i + "Nickname");
                 relationService.requestFriend(fromAccount.getId(), toAccount.getId());
