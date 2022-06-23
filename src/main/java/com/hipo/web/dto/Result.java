@@ -7,7 +7,4 @@ import lombok.Data;
 @AllArgsConstructor
 public class Result<T> {
     private T data;
-
-    public Result() {
-    }
 }

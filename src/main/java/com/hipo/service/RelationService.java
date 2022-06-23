@@ -55,14 +55,14 @@ public class RelationService {
                 .orElseThrow(() -> new NonExistResourceException("해당 Id를 갖는 Account를 찾을 수 없습니다."));
 
         Relation requestingRelation = relationRepository
-                .findByFromAccountAndToAccountAndRelationStateEquals(fromAccount, toAccount, RelationState.REQUEST)
-                .orElseThrow(() -> new NonExistResourceException("해당 fromAccount를 갖는 Relation을 찾을 수 없습니다."));
+                .findByFromAccountAndToAccountAndRelationStateEquals(toAccount, fromAccount, RelationState.REQUEST)
+                .orElseThrow(() -> new NonExistResourceException("해당 조건에 맞는 Relation을 찾을 수 없습니다."));
 
         requestingRelation.makeFriend();
 
         eventPublisher.publishEvent(new FriendAcceptEvent(requestingRelation));
 
-        Optional<Relation> optionalRelation = relationRepository.findByFromAccountAndToAccount(toAccount, fromAccount);
+        Optional<Relation> optionalRelation = relationRepository.findByFromAccountAndToAccount(fromAccount, toAccount);
         if (optionalRelation.isEmpty()) {
             Relation friend = Relation.builder()
                     .fromAccount(fromAccount)

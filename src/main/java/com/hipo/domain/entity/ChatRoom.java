@@ -1,7 +1,9 @@
 package com.hipo.domain.entity;
 
 import com.hipo.domain.entity.base.BaseBy;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import java.util.List;
 @Getter
 @Entity
 @Where(clause = "deleted = false")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom extends BaseBy {
 
     @Id
@@ -26,9 +29,6 @@ public class ChatRoom extends BaseBy {
 
     @OneToMany(mappedBy = "chatRoom")
     private List<AccountChatRoom> participants = new ArrayList<>();
-
-    protected ChatRoom() {
-    }
 
     public ChatRoom(String name, Account masterAccount) {
         this.name = name;

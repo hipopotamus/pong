@@ -30,7 +30,7 @@ public class RoomController {
     @GetMapping(value = "/rooms")
     public String rooms(@RequestParam Long loginAccountId, Pageable pageable,
                         @RequestParam(value = "all", required = false) boolean all, Model model){
-        model.addAttribute("list", chatRoomService.findChatRoom(loginAccountId, pageable, all));
+        model.addAttribute("list", chatRoomService.findAllChatRoom(loginAccountId));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));
 
         return "/chatting/rooms";
@@ -40,8 +40,8 @@ public class RoomController {
     @GetMapping("/room/{roomId}")
     public String getRoom(@RequestParam Long loginAccountId, @PathVariable("roomId") Long roomId, Model model){
 
-        model.addAttribute("messages", messageService.findChatRoomMessage(loginAccountId, roomId,
-                PageRequest.of(0, 10), false));
+        model.addAttribute("messages", messageService.findChatRoomMessageBySlice(loginAccountId, roomId,
+                PageRequest.of(0, 10)));
         model.addAttribute("room", chatRoomRepository.findById(roomId).orElse(null));
         model.addAttribute("account", accountRepository.findById(loginAccountId).orElse(null));
         return "/chatting/room";

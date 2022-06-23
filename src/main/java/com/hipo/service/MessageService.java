@@ -1,25 +1,21 @@
 package com.hipo.service;
 
-import com.hipo.web.dto.MessageDto;
 import com.hipo.domain.entity.Account;
 import com.hipo.domain.entity.ChatRoom;
 import com.hipo.domain.entity.Message;
 import com.hipo.domain.entity.enums.MessageType;
-import com.hipo.utill.JudgeProcessor;
 import com.hipo.exception.NonExistResourceException;
 import com.hipo.repository.AccountRepository;
 import com.hipo.repository.ChatRoomRepository;
 import com.hipo.repository.MessageRepository;
+import com.hipo.utill.JudgeProcessor;
+import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,22 +38,11 @@ public class  MessageService {
         return messageRepository.save(new Message(message, messageType, account, chatRoom));
     }
 
-    public Iterable<MessageDto> findChatRoomMessage(Long loginAccountId, Long chatRoomId, Pageable pageable, boolean all) {
+    public QueryResults<Message> findChatRoomMessageBySlice(Long loginAccountId, Long chatRoomId, Pageable pageable) {
+        return messageRepository.findChatRoomMessageBySlice(loginAccountId, chatRoomId, pageable);
+    }
 
-        if (all) {
-            List<MessageDto> messageList = messageRepository.findAllChatRoomMessage(loginAccountId, chatRoomId).stream()
-                    .map(MessageDto::new)
-                    .collect(Collectors.toList());
-            Collections.reverse(messageList);
-            return messageList;
-        }
-
-        Slice<Message> chatRoomMessage = messageRepository.findChatRoomMessage(loginAccountId, chatRoomId, pageable);
-        List<MessageDto> messageDtoList = chatRoomMessage.stream()
-                .map(MessageDto::new)
-                .collect(Collectors.toList());
-        Collections.reverse(messageDtoList);
-
-        return new SliceImpl<>(messageDtoList, pageable, chatRoomMessage.hasNext());
+    public List<Message> findAllChatRoomMessage(Long loginAccountId, Long chatRoomId) {
+        return messageRepository.findAllChatRoomMessage(loginAccountId, chatRoomId);
     }
 }
